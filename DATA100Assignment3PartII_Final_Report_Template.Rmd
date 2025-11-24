@@ -12,7 +12,6 @@ List your group members, including their student numbers, here:
 -   Thomas Sefton (169067096)
 -   Paolo Spadano (169126042)
 
-
 # Data Description
 
 ## \<\<Data Set 1\>\>
