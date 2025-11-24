@@ -17,10 +17,73 @@ List your group members, including their student numbers, here:
 ## Sea Ice
 
 ```{r load_data1}
-# Put in your code to load in the data set, along with any
-# necessary cleaning beyond what was done in Part 1
+library(tidyverse)
+library(openxlsx)
 
+# Import data
 sea_ice_extent_xlsx <- "https://masie_web.apps.nsidc.org/pub//DATASETS/NOAA/G02135/seaice_analysis/Sea_Ice_Index_Daily_Extent_G02135_v4.0.xlsx"
+
+# NH data
+NH_daily <- sea_ice_extent_xlsx |>
+    read.xlsx(
+        sheet = "NH-Daily-Extent",
+    ) |>
+    select(X1, X2, `1978`:`2023`) |>
+    rename(
+        month = X1,
+        day = X2
+    ) |>
+    fill(month) |>
+    pivot_longer(
+        cols = `1978`:`2023`,
+        names_to = "year",
+        values_to = "ice_extent",
+        values_drop_na = TRUE,
+    ) |>
+    mutate(
+        year = as.integer(year),
+        month = ordered(
+            month,
+            levels = c("January", "February", "March", "April",
+                "May", "June", "July", "August", "September",
+                "October", "November", "December")),
+        region = "Arctic",
+    ) |>
+    arrange(
+        year, month, day
+    )
+
+# SH data
+SH_daily <- sea_ice_extent_xlsx |>
+    read.xlsx(
+        sheet = "SH-Daily-Extent",
+        skipEmptyCols = TRUE,
+        fillMergedCells = TRUE,
+        cols = 1:48
+    ) |>
+    rename(
+        month = X1,
+        day = X2
+    ) |>
+    pivot_longer(
+        cols = `1978`:`2023`,
+        names_to = "year",
+        names_transform = list(year = as.integer),
+        values_to = "ice_extent",
+        values_drop_na = TRUE,
+    ) |>
+    mutate(
+        month = ordered(
+            month,
+            levels = c("January", "February", "March", "April",
+                "May", "June", "July", "August", "September",
+                "October", "November", "December")
+        ),
+        region = "Antarctic",
+    ) |>
+    arrange(
+        year, month, day
+    )
 ```
 
 The data come from NOAA and describe sea ice extent, which is the total area covered by at least 15% ice.
