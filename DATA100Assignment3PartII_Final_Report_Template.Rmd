@@ -149,13 +149,74 @@ In order to clean the data, we selected the workbook focusing on aggregate data,
 ## Storms
 
 ```{r load_data3}
-# Put in your code to load in the data set, along with any
-# necessary cleaning beyond what was done in Part 1
+cyclone_data_address <- "https://www.nhc.noaa.gov/data/hurdat/"
+at_cyclone_filename <- "hurdat2-1851-2022-050423.txt"
+np_cyclone_filename <- "hurdat2-nepac-1949-2022-050423.txt"
+
+new_columns <- c("status", "latitude", "longitude", "max_wind",
+    "min_pressure", "NE_extend_34", "SE_extend_34", "SW_extend_34",
+    "NW_extend_34", "NE_extend_50", "SE_extend_50", "SW_extend_50",
+    "NW_extend_50", "NE_extend_64", "SE_extend_64", "SW_extend_64",
+    "NW_extend_64", "r_max_wind"
+)
+
+at_cyclone <- str_c(cyclone_data_address, at_cyclone_filename, sep = "") |>
+    read_csv(
+        col_names = c(as.character(1:4)),
+        progress = FALSE,
+        show_col_types = FALSE
+    ) |>
+    separate_wider_delim(
+        cols = `4`,
+        # Set the delim and the names
+        delim = ",", 
+        names = new_columns
+    ) |>
+    mutate(
+        across(everything(), str_trim),
+        # make "-999" NAs, make "-99" NAs
+        # Create columns BasinNumberYear, Name, and Entries
+        across(everything(), ~na_if(., "-999")),
+        across(everything(), ~na_if(., "-99")),
+        BasinNumberYear = ifelse(is.na(status), `1`, NA),
+        Name = ifelse(is.na(status), `2`, NA),
+        Entries = ifelse(is.na(status), `3`, NA)
+    ) |>
+    relocate(BasinNumberYear, Name, Entries) |>
+    fill(BasinNumberYear, Name, Entries) |>
+    filter(!is.na(status))  |>
+    select(-Entries) |>
+    separate_wider_position(
+        BasinNumberYear,
+        # Specify the widths
+        widths = c(Basin = 2, Number =  2, NameYear = 4)
+    ) |>
+    separate_wider_position(
+        `1`,
+        # Specify the widths
+        widths = c(ObservYear = 4, Month =  2, Day = 2)
+    ) |>
+    separate_wider_position(
+        `2`,
+        # Specify the widths
+        widths = c(Hour = 2, Minute = 2)
+    ) |>
+    rename(
+        Identifier = `3`
+    ) |>
+    mutate(
+        across(
+            c(NameYear, ObservYear, Month, Day, Hour,
+                Minute, Number),
+            as.integer
+        )
+    ) |>
+    mutate(across(max_wind:r_max_wind, as.numeric))
 ```
 
-The data come from \<<place>\> and detail \<<more specific description of the data>\>.
+The data come from NOAA (affiliated with the American government) and detail the wind speed, lifespan, category, and location of major storms in the Atlantic and Pacific basins.
 
-In order to clean the data, we \<\<steps to clean the data, concise but precise enough that a reader could follow your steps without seeing your code\>\>
+In order to clean the data, we read in the two .csv files of interest and separated out the one column containing most of the information using the "," delimiter. We then replaced any -99 and -999 values with N/A for consistency and created columns for the basin, number, and year (combined), name, and number of entries. We then downfilled the aforementioned columns, filtered out header rows using the fact that they have no category value, and removed the Entries column (which only had values in header rows). We then separated out the combined BasinNumberYear and time columns. Finally, we renamed the identifier column and cast all numeric variables as such.
 
 ## Combining the Data
 
