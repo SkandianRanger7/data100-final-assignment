@@ -102,7 +102,11 @@ SH_daily <- sea_ice_extent_xlsx |>
 
 The data come from NOAA and describe sea ice extent, which is the total area covered by at least 15% ice.
 
-In order to clean the data, we \<\<steps to clean the data, concise but precise enough that a reader could follow your steps without seeing your code\>\>.
+In order to clean the data, we first loaded the two sheets of the .xlsx workbook separately since the data is divided by hemisphere. 
+
+For the northern hemisphere, we then removed unnecessary columns leaving and appropriately naming the month and day columns as well as a column for each year of observation. We then filled in the gaps in the month and pivoted the data so that it no longer had a column for each year. Finally, we sorted the data chronologically by casting the newly formed year column as an integer and converting month to a factor containing the full names of each month.
+
+For the southern hemisphere, 
 
 ## \<\<Data Set 2\>\>
 
