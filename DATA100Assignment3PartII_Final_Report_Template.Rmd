@@ -102,27 +102,51 @@ SH_daily <- sea_ice_extent_xlsx |>
 
 The data come from NOAA and describe sea ice extent, which is the total area covered by at least 15% ice.
 
-In order to clean the data, we first loaded the two sheets of the .xlsx workbook separately since the data is divided by hemisphere. 
+In order to clean the data, we first loaded the two sheets of the .xlsx workbook separately since the data is divided by hemisphere. We then removed unnecessary columns leaving and appropriately naming the month and day columns as well as a column for each year of observation. We then filled in the gaps in the month and pivoted the data so that it no longer had a column for each year. Finally, we sorted the data chronologically by casting the newly formed year column as an integer and converting month to a factor containing the full names of each month.
 
-For the northern hemisphere, we then removed unnecessary columns leaving and appropriately naming the month and day columns as well as a column for each year of observation. We then filled in the gaps in the month and pivoted the data so that it no longer had a column for each year. Finally, we sorted the data chronologically by casting the newly formed year column as an integer and converting month to a factor containing the full names of each month.
-
-For the southern hemisphere, 
-
-## \<\<Data Set 2\>\>
+## Climate Change Awareness
 
 ```{r load_data2}
-# Put in your code to load in the data set, along with any
-# necessary cleaning beyond what was done in Part 1
+climate_opinion_address <- "https://data.humdata.org/dataset/dc9f2ca4-8b62-4747-89b1-db426ce617a0/resource/6041db5f-8190-47ff-a10b-9841325de841/download/climate_change_opinion_survey_2022_aggregated.xlsx"
 
-# Reminder: do NOT print your data to the screen unless it's
-# completely necessary
+climate_sheet_names <- climate_opinion_address |>
+    loadWorkbook() |>
+    names()
+
+aware_sheet_name <- "climate_awareness"
+
+climate_awareness <- climate_opinion_address |>
+    read.xlsx(
+        sheet = aware_sheet_name
+    ) |>
+    pivot_longer(
+        cols = !contains(aware_sheet_name),
+        names_to = "country",
+        values_to = "score"
+    ) |>
+    mutate(
+        climate_awareness = case_when(
+            climate_awareness == "I have never heard of it" ~ "aware_no",
+            climate_awareness == "I know a little about it" ~ "aware_alittle",
+            climate_awareness == "I know a moderate amount about it" ~
+                "aware_moderate",
+            climate_awareness == "I know a lot about it" ~ "aware_alot",
+            climate_awareness == "Refused" ~ "aware_refuse",
+            climate_awareness == "(Unweighted Base)" ~ "aware_base"
+        )
+    ) |>
+    rename(answer = climate_awareness) |>
+    pivot_wider(
+        names_from = answer,
+        values_from = score
+    )
 ```
 
-The data come from \<<place>\> and detail \<<more specific description of the data>\>.
+The data come from the Humanitarian Data Exchange and detail awareness of climate change around the world based on surveys.
 
-In order to clean the data, we \<\<steps to clean the data, concise but precise enough that a reader could follow your steps without seeing your code\>\>
+In order to clean the data, we selected the workbook focusing on aggregate data, pivoting it longer so that countries were no longer each a column. We then converted the answer options on the spreadsheet to more programmatic and clear names (ex. "Refused" became "aware_refuse"). Finally, we pivoted the data wider to give each level of awareness its own column instead of having a row per country per awareness level.
 
-## \<\<Data Set 3\>\>
+## Storms
 
 ```{r load_data3}
 # Put in your code to load in the data set, along with any
