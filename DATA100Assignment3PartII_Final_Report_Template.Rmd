@@ -8,7 +8,7 @@ output: pdf_document
 
 List your group members, including their student numbers, here:
 
--   Spencer Robinson (\#########)
+-   Spencer Robinson (169114936)
 -   Thomas Sefton (\#########)
 -   Paolo Spadano (\#########)
 
