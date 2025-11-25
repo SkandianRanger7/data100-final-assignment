@@ -1,10 +1,9 @@
 ---
 title: "TITLE OF YOUR PROJECT"
-subtitle: "Exploring Disparate Data: Part 3 - Final Report"
-author: "Put your group name here: (anyname that is fancy and funny)"
+author: 'Put your group name here: (anyname that is fancy and funny)'
 date: "Due November 26th, 2025"
-output: bookdown::pdf_document2:
-          toc: false
+output: pdf_document
+subtitle: "Exploring Disparate Data: Part 3 - Final Report"
 ---
 
 ```{r setup, include=FALSE}
