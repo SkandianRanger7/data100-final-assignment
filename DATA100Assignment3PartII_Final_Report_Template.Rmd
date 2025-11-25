@@ -3,7 +3,8 @@ title: "TITLE OF YOUR PROJECT"
 subtitle: "Exploring Disparate Data: Part 3 - Final Report"
 author: "Put your group name here: (anyname that is fancy and funny)"
 date: "Due November 26th, 2025"
-output: pdf_document
+output: bookdown::pdf_document2:
+          toc: false
 ---
 
 ```{r setup, include=FALSE}
