@@ -98,6 +98,15 @@ SH_daily <- sea_ice_extent_xlsx |>
     arrange(
         year, month, day
     )
+
+sea_ice <- bind_rows(NH_daily, SH_daily) |>
+  mutate(
+    date_time = ymd(
+      paste(
+        paste(year, month, day, sep = "-")
+      )
+    )
+  )
 ```
 
 The data come from NOAA and describe sea ice extent, which is the total area covered by at least 15% ice.
@@ -278,7 +287,14 @@ storms <- bind_rows(at_cyclone, np_cyclone) |>
         lat = convert_latlon(latitude),
         lon = convert_latlon(longitude)
     ) |>
-  select(Basin, Number, NameYear, Name, ObservYear, Month, Day, Hour, Minute, status, lat, lon, max_wind)
+  select(Basin, Number, NameYear, Name, ObservYear, Month, Day, Hour, Minute, status, lat, lon, max_wind) |>
+  mutate(
+    date_time = ymd(
+      paste(
+        paste(ObservYear, Month, Day, sep = "-")
+      )
+    )
+  )
 ```
 
 The data come from NOAA (affiliated with the American government) and detail the wind speed, lifespan, category, and location of major storms in the Atlantic and Pacific basins.
@@ -302,6 +318,21 @@ The first aspect that we found interesting is shown in \@ref(fig:insight1). The 
 # an R chunk. Note that you can reference figures using:
 # \@ref(fig:insight1), where "insight1" is the label of this code
 # chunk (the first bit of text after the "r" in "```{r label, options...}")
+
+storms_ice <- inner_join(storms, sea_ice) |>
+  group_by(ObservYear, region) |>
+  summarize(
+    min_ice = min(ice_extent, na.rm = TRUE), 
+    region, 
+    max_wind = max(max_wind, na.rm = TRUE),
+    avg_lat = mean(lat, na.rm = TRUE),
+    avg_lon = mean(lon, na.rm = TRUE)
+  ) |>
+  distinct()
+
+ggplot(storms_ice, aes(x=avg_lon, y=min_ice, colour = region)) +
+  geom_jitter() +
+  geom_smooth(method = "lm")
 ```
 
 This insight is supported by the summary statistics in table \@ref(tab:summary_stats)
