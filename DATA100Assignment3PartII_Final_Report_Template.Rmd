@@ -1,7 +1,7 @@
 ---
 title: "TITLE OF YOUR PROJECT"
 author: 'Put your group name here: (anyname that is fancy and funny)'
-date: "Due November 26th, 2025"
+date: "Due November 29th, 2025"
 output: pdf_document
 subtitle: "Exploring Disparate Data: Part 3 - Final Report"
 ---
@@ -295,6 +295,9 @@ storms <- bind_rows(at_cyclone, np_cyclone) |>
       )
     )
   )
+
+storms$status <- 
+  factor(storms$status, levels = c("WV", "DB", "LO", "EX", "ET", "PT", "SD", "SS", "TD", "TS", "HU"))
 ```
 
 The data come from NOAA (affiliated with the American government) and detail the wind speed, lifespan, category, and location of major storms in the Atlantic and Pacific basins.
@@ -319,20 +322,7 @@ The first aspect that we found interesting is shown in \@ref(fig:insight1). The 
 # \@ref(fig:insight1), where "insight1" is the label of this code
 # chunk (the first bit of text after the "r" in "```{r label, options...}")
 
-storms_ice <- inner_join(storms, sea_ice) |>
-  group_by(ObservYear, region) |>
-  summarize(
-    min_ice = min(ice_extent, na.rm = TRUE), 
-    region, 
-    max_wind = max(max_wind, na.rm = TRUE),
-    avg_lat = mean(lat, na.rm = TRUE),
-    avg_lon = mean(lon, na.rm = TRUE)
-  ) |>
-  distinct()
 
-ggplot(storms_ice, aes(x=avg_lon, y=min_ice, colour = region)) +
-  geom_jitter() +
-  geom_smooth(method = "lm")
 ```
 
 This insight is supported by the summary statistics in table \@ref(tab:summary_stats)
@@ -351,6 +341,45 @@ The next insight that we found is shown in \@ref(fig:insight2).
 # This figure will have a height of 4 and a width of 6.
 # Feel free to change this, and to apply different sizes
 # to the other figures you create.
+
+storms_hu <- storms |>
+  group_by(Basin, Number, NameYear) |>
+  filter(any(status == "HU")) |>
+  ungroup() |>
+  filter(status %in% c("DB", "TD", "TS", "HU"))
+
+basin_labels <- c(
+    AL = "North Atlantic",
+    EP = "Eastern North Pacific",
+    CP = "Central North Pacific"
+)
+
+status_labels <- c(
+  HU = "Hurricane",
+  TS = "Tropical Storm",
+  TD = "Tropical Depression",
+  EX = "Extratropical",
+  LO = "Low",
+  DB = "Disturbance",
+  SS = "Subtropical Storm",
+  SD = "Subtropical Depression",
+  WV = "Tropical Wave",
+  ET = "Extratropical Transition",
+  PT = "Potential Tropical Cyclone"
+)
+
+ggplot(storms_hu, aes(y=lat, x=status, fill=status)) +
+  geom_boxplot() +
+  facet_wrap(~Basin, labeller = labeller(Basin = basin_labels)) +
+  labs(
+    title = "Latitude Increases with Storm Status",
+    subtitle = "Especially in the North Atlantic Basin",
+    y = "Latitude",
+    x = "Status",
+    fill = "Storm Type",
+    caption = "NOAA HURDAT2 dataset"
+  ) +
+  scale_fill_discrete(labels = status_labels)
 ```
 
 Finally, \@ref(fig:insight3) shows ...
