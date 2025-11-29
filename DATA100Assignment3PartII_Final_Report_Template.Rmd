@@ -1,8 +1,11 @@
 ---
-title: "Exploring the Influence of Arctic Sea Ice on Hurricane Latitudinal Shifts and Public Awareness in Affected Countries"
+title: Exploring the Influence of Arctic Sea Ice on Hurricane Latitudinal Shifts and
+  Public Awareness in Affected Countries
 author: 'Put your group name here: (anyname that is fancy and funny)'
 date: "Due November 29th, 2025"
-output: pdf_document
+output:
+  bookdown::pdf_document2:
+    toc: false
 subtitle: "Exploring Disparate Data: Part 3 - Final Report"
 ---
 
@@ -10,6 +13,8 @@ subtitle: "Exploring Disparate Data: Part 3 - Final Report"
 # Hide code on knit
 knitr::opts_chunk$set(
 
+  fig.pos = "H",
+  
   echo = FALSE,
 
   warning = FALSE,
@@ -25,6 +30,9 @@ Group Members:
 -   Spencer Robinson (169114936)
 -   Thomas Sefton (169067096)
 -   Paolo Spadano (169126042)
+
+# Abstract
+This paper investigates the potential influence of Arctic sea ice variability on the latitude  of hurricanes, alongside the public awareness of climate change in countries most affected by tropical storms. Utilizing historical datasets from NOAA on storm tracks and intensities, the MASIE dataset on daily sea ice extent, and survey-based climate awareness data from the Humanitarian Data Exchange, we explore long-term trends in hurricane latitude and frequency. Our analysis reveals a statistically significant decline in the average latitude of hurricanes over the past 150 years, correlating inversely with the previous year’s Arctic sea ice extent. Storm development stages were also examined indicating an increase in latitude as storms reached hurricane status, with the strongest storms concentrated in regions experiencing the greatest sea ice reduction. Cross-referencing hurricane exposure with climate awareness metrics, we find that countries with higher storm frequency do not uniformly exhibit heightened awareness. These findings demonstrate the interactions between environmental change, storm behavior, and societal awareness, highlighting the need for targeted communication strategies in vulnerable nations.
 
 # Data Description
 
@@ -333,7 +341,7 @@ We explored many aspects of the data, but will demonstrate three. These are the 
 
 The first aspect that we found interesting is shown in \@ref(fig:insight1). Since observations began in about 1850, the average hurricane has been observed at lower and lower latitudes. This negative correlation has remained consistent despite a few outliers (particularly in 1925).
 
-```{r insight1, fig.cap="Hurricanes have seen a decrease in average latitude of over 10 degrees since 1850."}
+```{r insight1, fig.pos="H", fig.cap="Hurricanes have seen a decrease in average latitude of over 10 degrees since 1850."}
 # This is an example of how you can control figures and captions in
 # an R chunk. Note that you can reference figures using:
 # \@ref(fig:insight1), where "insight1" is the label of this code
