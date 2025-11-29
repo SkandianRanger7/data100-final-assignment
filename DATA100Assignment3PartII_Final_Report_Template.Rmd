@@ -372,7 +372,7 @@ ggplot(hu_annual, aes(x=ObservYear, y=avg_lat)) +
 
 The next insight that we found is shown in \@ref(fig:insight2).
 
-```{r insight2, fig.height=4, fig.width=6, fig.cap="This is a figure caption that you will need to change in order to get good marks in the visualization rubric items."}
+```{r insight2, fig.height=4, fig.width=6, fig.cap="Box plot showing the distribution of hurricane latitudes at different storm stages, faceted by basin. Hurricanes in the North Atlantic generally rise in latitude as they intensify."}
 # This figure will have a height of 4 and a width of 6.
 # Feel free to change this, and to apply different sizes
 # to the other figures you create.
@@ -413,9 +413,9 @@ ggplot(storms_hu, aes(y=lat, x=status, fill=status)) +
   scale_fill_discrete(labels = status_labels)
 ```
 
-Finally, \@ref(fig:insight3) shows ...
+Finally, \@ref(fig:insight3) shows the relationship between average hurricane latitude and sea ice extent in a given year.
 
-```{r insight3, fig.height=4, fig.width=6, fig.cap="This is a figure caption that you will need to change in order to get good marks in the visualization rubric items."}
+```{r insight3, fig.height=4, fig.width=6, fig.cap="Scatterplot of average hurricane latitude in the current year versus Arctic or Antarctic sea ice extent in the previous year, faceted by hemisphere. The plot indicates an inverse relationship, with lower sea ice extents corresponding to hurricanes occurring at higher latitudes."}
 
 storms_ice = inner_join(hu_annual, sea_ice_annual, by = join_by(ObservYear == year))
 
@@ -486,13 +486,13 @@ inner_join(hu_top10, hu_count, by = join_by(ISO3 == ISO3)) |>
 
 # Conclusion and Future Work
 
-Overall, we found \<<general ideas>\>.
+Overall, our analysis demonstrates a consistent trend in the latitudinal movement of hurricanes over the past 150 years. By integrating storm data with sea ice records, we found that average hurricane latitudes have shifted northward in response to decreasing Arctic sea ice, with stronger storms consistently occurring at increasingly higher latitudes within each basin. This relationship was  pronounced in the North Atlantic, where median latitudes rise sharply with storm intensity. While cross-year comparisons revealed that hurricanes are influenced by previous year’s ice conditions, other basins exhibited weaker correlations, suggesting that there are other factors at play. These findings highlight the importance of considering both environmental variability and long-term trends when evaluating storm behavior.
 
-A second paragraph about our findings.
+In terms of societal impact, our examination of climate awareness in the countries most exposed to hurricanes reveals that high storm frequency does not necessarily correspond to greater public understanding of climate change. Some nations experiencing frequent and intense hurricanes exhibited moderate awareness, while others demonstrated comparatively low engagement despite high exposure. This disconnect highlights the critical need for targeted education and communication strategies to bridge the gap between observed environmental risk and public perception. Moving forward, these insights suggest indicate the lack knowledge in vulnerable populations, particularly as extreme weather patterns continue to shift under global climate change.
 
-The next steps in this analysis are...
+To continue this analysis, more factors such as ocean temperature and wind data could be included to get a better understanding of how sea ice affects storms. Annual climate awareness information could also be used to understand the impact of these changes on people's understanding of climate change. More precise modelling could also be used to understand where storms make landfall, rather than using the average latitude of the entire trajectory.
 
-The limitations of this analysis are as follows. (Do not simply list potential issues with sampling, but relate them to your analysis and how they affect your conclusions. An honest and complete acknowledgement of the limitations makes the analysis more trustworthy.)
+A major limitation of this analysis is the absence of other basins beyond the Atlantic and Pacific. Although these make up a majority of storms, missing other basins means that these patterns cannot be assumed to be global. Another limitation comes from the climate awareness data, which is missing major countries such as China that could reinforce or violate the patterns currently observed.
 
 # References
 
