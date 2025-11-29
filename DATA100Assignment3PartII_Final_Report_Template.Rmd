@@ -298,6 +298,12 @@ storms <- bind_rows(at_cyclone, np_cyclone) |>
 
 storms$status <- 
   factor(storms$status, levels = c("WV", "DB", "LO", "EX", "ET", "PT", "SD", "SS", "TD", "TS", "HU"))
+
+storms_hu <- storms |>
+  group_by(Basin, Number, NameYear) |>
+  filter(any(status == "HU")) |>
+  ungroup() |>
+  filter(status %in% c("DB", "TD", "TS", "HU"))
 ```
 
 The data come from NOAA (affiliated with the American government) and detail the wind speed, lifespan, category, and location of major storms in the Atlantic and Pacific basins.
@@ -322,6 +328,18 @@ The first aspect that we found interesting is shown in \@ref(fig:insight1). The 
 # \@ref(fig:insight1), where "insight1" is the label of this code
 # chunk (the first bit of text after the "r" in "```{r label, options...}")
 
+sea_ice_annual <- sea_ice |>
+  group_by(year, region) |>
+  summarize(ice_extent = mean(ice_extent))
+
+hu_annual <- storms |>
+  filter(status == "HU") |>
+  group_by(ObservYear) |>
+  summarize(avg_lat = mean(lat))
+
+ggplot(hu_annual, aes(x=ObservYear, y=avg_lat)) +
+  geom_line() +
+  geom_smooth(method = "lm")
 
 ```
 
@@ -342,11 +360,7 @@ The next insight that we found is shown in \@ref(fig:insight2).
 # Feel free to change this, and to apply different sizes
 # to the other figures you create.
 
-storms_hu <- storms |>
-  group_by(Basin, Number, NameYear) |>
-  filter(any(status == "HU")) |>
-  ungroup() |>
-  filter(status %in% c("DB", "TD", "TS", "HU"))
+
 
 basin_labels <- c(
     AL = "North Atlantic",
@@ -385,6 +399,13 @@ ggplot(storms_hu, aes(y=lat, x=status, fill=status)) +
 Finally, \@ref(fig:insight3) shows ...
 
 ```{r insight3, fig.height=4, fig.width=6, fig.cap="This is a figure caption that you will need to change in order to get good marks in the visualization rubric items."}
+
+storms_ice = inner_join(hu_annual, sea_ice_annual, by = join_by(ObservYear == year))
+
+ggplot(storms_ice, aes(y=avg_lat, x=lag(ice_extent))) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap(~region)
 ```
 
 # Conclusion and Future Work
