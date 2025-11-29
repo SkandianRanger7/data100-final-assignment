@@ -1,5 +1,5 @@
 ---
-title: "TITLE OF YOUR PROJECT"
+title: "Exploring the Influence of Arctic Sea Ice on Hurricane Latitudinal Shifts and Public Awareness in Affected Countries"
 author: 'Put your group name here: (anyname that is fancy and funny)'
 date: "Due November 29th, 2025"
 output: pdf_document
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 ```
 
-List your group members, including their student numbers, here:
+Group Members:
 
 -   Spencer Robinson (169114936)
 -   Thomas Sefton (169067096)
@@ -33,6 +33,7 @@ List your group members, including their student numbers, here:
 ```{r load_data1}
 library(tidyverse)
 library(openxlsx)
+library(kableExtra)
 
 # Import data
 sea_ice_extent_xlsx <- "https://masie_web.apps.nsidc.org/pub//DATASETS/NOAA/G02135/seaice_analysis/Sea_Ice_Index_Daily_Extent_G02135_v4.0.xlsx"
@@ -154,6 +155,14 @@ climate_awareness <- climate_opinion_address |>
 The data come from the Humanitarian Data Exchange and detail awareness of climate change around the world based on surveys.
 
 In order to clean the data, we selected the workbook focusing on aggregate data, pivoting it longer so that countries were no longer each a column. We then converted the answer options on the spreadsheet to more programmatic and clear names (ex. "Refused" became "aware_refuse"). Finally, we pivoted the data wider to give each level of awareness its own column instead of having a row per country per awareness level.
+
+## Tropical Cyclone Exposure
+
+```{r load_data4}
+tce_dat <- read_csv("https://datapub.gfz-potsdam.de/download/10.5880.PIK.2017.005/TCE-DAT_2015-exposure_1950-2015.csv", skip = 6)
+```
+
+The data come from the Potsdam Institute for Climate Impact Research and contain information about the impact and frequency of storms by country. The data required no cleaning beyond skipping the first six rows of headers.
 
 ## Storms
 
@@ -312,17 +321,19 @@ In order to clean the data, we read in the two .csv files of interest and separa
 
 ## Combining the Data
 
-Explain how any combinations of data were performed. Explain what kind of join was needed, whether columns had to be modified (for example, matching "country" names.)
+In order to analyze the ice and storm data together both data sets were annualized and then inner-joined using their respective year variables. Although this limits the granularity of the data, it solves the issue of each data set observing only on random days while still allowing year-over-year trends to be visualized.
+
+We also joined the storm count per country with the climate awareness data, which required converting country names to ISO3 format. This was done manually since only the top 10 most affected countries were joined in this way.
 
 # Exploratory Data Analysis
 
-To achieve our goals, we explored the data by...
+To achieve our goals, we explored the data by looking for historical trends in the development of storms and comparing those to the changes in sea ice year over year. This methodology was chosen in order to identify what exactly was changing about storms and then see if those changes could be attributed to sea ice.
 
-We explored many aspects of the data, but will demonstrate three. These are \<\<insight 1\>\>, \<\<insight 2\>\>, and \<<insight3>\>
+We explored many aspects of the data, but will demonstrate three. These are the changes in hurricane latitude over time, latitude changes as a storm develops, and the relationship between one year's sea ice and the next year's hurricane locations.
 
-The first aspect that we found interesting is shown in \@ref(fig:insight1). The insight should be specific to the data shown, not a general statement beyond the data (leave that for the conclusion).
+The first aspect that we found interesting is shown in \@ref(fig:insight1). Since observations began in about 1850, the average hurricane has been observed at lower and lower latitudes. This negative correlation has remained consistent despite a few outliers (particularly in 1925).
 
-```{r insight1, fig.cap="This is a figure caption that you will need to change in order to get good marks in the visualization rubric items."}
+```{r insight1, fig.cap="Hurricanes have seen a decrease in average latitude of over 10 degrees since 1850."}
 # This is an example of how you can control figures and captions in
 # an R chunk. Note that you can reference figures using:
 # \@ref(fig:insight1), where "insight1" is the label of this code
@@ -335,7 +346,7 @@ sea_ice_annual <- sea_ice |>
 hu_annual <- storms |>
   filter(status == "HU") |>
   group_by(ObservYear) |>
-  summarize(avg_lat = mean(lat))
+  summarize(avg_lat = median(lat))
 
 ggplot(hu_annual, aes(x=ObservYear, y=avg_lat)) +
   geom_line() +
@@ -343,22 +354,13 @@ ggplot(hu_annual, aes(x=ObservYear, y=avg_lat)) +
   labs(
     title = "Average Hurricane Latitude Decreased Over Time",
     subtitle = "In the last 150 years",
-    y = "Average Latitude",
+    y = "Median Latitude",
     x = "Year Observed",
     caption = "NOAA HURDAT2 dataset"
   )
 
 ```
 
-This insight is supported by the summary statistics in table \@ref(tab:summary_stats)
-
-```{r summary_stats}
-# Calculate the relevant summary statistics here.
-# Note that the "kable" function in the "knitr" package
-# is convenient for making nice tables. Other packages can
-# do much fancier things with tables, but keep in mind that
-# the insights should be the star, not the formatting.
-```
 
 The next insight that we found is shown in \@ref(fig:insight2).
 
@@ -420,6 +422,58 @@ ggplot(storms_ice, aes(y=avg_lat, x=lag(ice_extent))) +
     y = "Average Hurricane Latitude (Current Year)",
     caption = "ADD DATASET CREDIT"
   )
+```
+
+
+EXPLAIN TABLE HERE #TODO \@ref(tab:summary_stats)
+
+```{r summary_stats}
+# Calculate the relevant summary statistics here.
+# Note that the "kable" function in the "knitr" package
+# is convenient for making nice tables. Other packages can
+# do much fancier things with tables, but keep in mind that
+# the insights should be the star, not the formatting.
+
+hu_count <- count(tce_dat, ISO3)
+
+hu_top10 <- climate_awareness |>
+  filter(country %in% c("Philippines", "Japan", "Mexico", "Vietnam", "Australia", "United.States", "Taiwan", "India", "Lao.People's.Democratic.Republic", "Hong.Kong")) |>
+  mutate(ISO3 = case_when(
+    country == "Philippines" ~ "PHL",
+    country == "Japan" ~ "JPN",
+    country == "Mexico" ~ "MEX",
+    country == "Vietnam" ~ "VNM",
+    country == "Australia" ~ "AUS",
+    country == "United.States" ~ "USA",
+    country == "Taiwan" ~ "TWN",
+    country == "India" ~ "IND",
+    country == "Lao.People's.Democratic.Republic" ~ "LAO",
+    country == "Hong.Kong" ~ "HKG",
+  ))
+
+awareness_avg <- climate_awareness |>
+  summarize(
+            country = "Worldwide Average",
+            aware_no = mean(aware_no),
+            aware_alittle = mean(aware_alittle),
+            aware_moderate = mean(aware_moderate),
+            aware_alot = mean(aware_alot),
+            storm_count = ""
+            )
+
+
+inner_join(hu_top10, hu_count, by = join_by(ISO3 == ISO3)) |>
+  select(-c(aware_base, ISO3, aware_refuse)) |>
+  rename("storm_count" = n) |>
+  arrange(desc(storm_count)) |>
+  rbind(awareness_avg) |>
+  mutate(across(c(aware_no, aware_alittle, aware_moderate, aware_alot), ~ paste(round(.x, 2), "%"))) |>
+  kable() |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                full_width = FALSE, 
+                position = "center") %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#4CAF50") %>%
+  row_spec(11, bold = TRUE)
 ```
 
 # Conclusion and Future Work
