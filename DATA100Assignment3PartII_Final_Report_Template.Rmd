@@ -339,7 +339,14 @@ hu_annual <- storms |>
 
 ggplot(hu_annual, aes(x=ObservYear, y=avg_lat)) +
   geom_line() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Average Hurricane Latitude Decreased Over Time",
+    subtitle = "In the last 150 years",
+    y = "Average Latitude",
+    x = "Year Observed",
+    caption = "NOAA HURDAT2 dataset"
+  )
 
 ```
 
@@ -405,7 +412,14 @@ storms_ice = inner_join(hu_annual, sea_ice_annual, by = join_by(ObservYear == ye
 ggplot(storms_ice, aes(y=avg_lat, x=lag(ice_extent))) +
   geom_point() +
   geom_smooth(method = "lm") +
-  facet_wrap(~region)
+  facet_wrap(~region, scales = "free") +
+  labs(
+    title = "Hurricane Latitude Inversely Correlated with Previous Year's Sea Ice",
+    subtitle = "Primarily in the Arctic",
+    x = "Sea Ice Extent (Previous Year)",
+    y = "Average Hurricane Latitude (Current Year)",
+    caption = "ADD DATASET CREDIT"
+  )
 ```
 
 # Conclusion and Future Work
