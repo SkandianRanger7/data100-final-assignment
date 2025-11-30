@@ -340,7 +340,7 @@ To achieve our goals, we explored the data by looking for historical trends in t
 
 We explored many aspects of the data, but will demonstrate three. These are the changes in hurricane latitude over time, latitude changes as a storm develops, and the relationship between one year's sea ice and the next year's hurricane locations.
 
-The first aspect that we found interesting is shown in \@ref(fig:insight1). Since observations began in about 1850, the average hurricane has been observed at lower and lower latitudes. This negative correlation has remained consistent despite a few outliers (particularly in 1925).
+The first aspect we examined is the long-term trend in hurricane latitude, shown in \@ref(fig:insight1). This given visualization plots the average latitude at which storms reached hurricane strength each year, allowing us to observe how the typical location of hurricane intensity storms shifted over time. Although the data can fluctuate substantially year to year the fitted linear model reveals a clear downward trend over the 170-yr period, indicating that hurricanes have been occurring at slightly lower average latitudes in more recent decades. This aligns with broader research showing that storm tracks can shift as atmospheric circulation patterns evolve. For instance, "Storm tracks are found to shift equator ward in the North Atlantic and over Europe, and eastward in the North Pacific. In both regions, cyclones become weaker and slower, particularly on the poleward flank of the storm tracks" (Davis et al., 2024, as summarized in GRL). Suggesting structural changes in mid-latitude steering patterns that may influence where storms travel. Additionally, as shown by Colbert and Soden (2012), the latitude distribution of Atlantic tropical cyclone tracks depends strongly on the storm genesis location, storms originating farther south are more likely to follow lower-latitude, straight-moving tracks, while shifts in genesis latitude or changes in steering flow produce more re curving or higher-latitude tracks (Colbert & Soden, 2012, as summarized by AMS Journals). Together these findings help contextualize the negative trend observed in our plot.
 
 ```{r insight1, fig.pos="H", fig.cap="Hurricanes have seen a decrease in average latitude of over 10 degrees since 1850."}
 # This is an example of how you can control figures and captions in
@@ -371,7 +371,7 @@ ggplot(hu_annual, aes(x=ObservYear, y=avg_lat)) +
 ```
 
 
-The next insight that we found is shown in \@ref(fig:insight2).
+The second aspect we explored examines how storm intensity relates to the latitude at which storms occur across different ocean basins, shown in figure \@ref(fig:insight2). When comparing latitude distributions across storm categories, we observe that hurricanes consistently reach higher average latitudes than weaker storm types, particularly in the North Atlantic basin. The North Atlantic also displays a noticeably broader spread of storm latitudes compared to the Eastern and Central Pacific basins, suggesting that stronger storms in this region tend to intensify farther from the equator. This pattern remains consistent with broader findings. NOAA's Geophysical Fluid Dynamics Labratory summarises reesearch showing that the latitude at which the maximum intensity of tropical cyclones occurs has expanded poleward (Kossin et al., 2014, as summarized by NOAA GFDL). The origional nature study underpinning this finding further reports they identify a pronounced poleward migration in the average latitude at which tropical cyclones have achieved their lifetime-maximum intensity over the past 30 years (Kossin, Emanuel & Vecchi, 2014). Together, these results reinforce the idea that the strongest tropical cyclones reach their peak intensities farther from the equator than in previous years.
 
 ```{r insight2, fig.height=4, fig.width=6, fig.cap="Box plot showing the distribution of hurricane latitudes at different storm stages, faceted by basin. Hurricanes in the North Atlantic generally rise in latitude as they intensify."}
 # This figure will have a height of 4 and a width of 6.
@@ -414,7 +414,8 @@ ggplot(storms_hu, aes(y=lat, x=status, fill=status)) +
   scale_fill_discrete(labels = status_labels)
 ```
 
-Finally, \@ref(fig:insight3) shows the relationship between average hurricane latitude and sea ice extent in a given year.
+The third aspect we explored examines whether changes in sea ice extent are associated with shifts in where hurricanes tend to form or intensify, demonstrated in figure \@ref(fig:insight3). To investigate this relationship, we merged the annual average latitude of all hurricane-strength storms with the previous year's mean sea ice extent for each hemisphere, using a lagged structure to reflect environmental conditions from the preceding season. The resulting scatter plots reveal clear differences regionally. In the Antarctic panel, hurricane latitude shows almost no association with sea ice extent, forming a cluster with only a weak negative slope. In contrast to this, the Arctic results display a slightly stronger downward trend, suggesting that years with higher legged ice extent are followed by hurricanes occurring at somewhat lower latitudes. Although this pattern remains modest, it is still consistent with broader research linking Arctic sea-ice loss to altered storm behavior. For instance, research reports that sea-ice loss weakens the equator-to-pole temperature gradient, leading to fewer, slower, extra tropical cyclones across the North Atlantic and Pacific basins (Hay et al., 2023, as summarized by GRL). These findings support the hypothesis that sea-ice conditions can influence atmospheric patterns and storm tracks. Overall, our data indicates that sea ice conditions may correspond to subtle, region specific variations in average latitude at which hurricanes reach their strongest intensity.
+
 
 ```{r insight3, fig.height=4, fig.width=6, fig.cap="Scatterplot of average hurricane latitude in the current year versus Arctic or Antarctic sea ice extent in the previous year, faceted by hemisphere. The plot indicates an inverse relationship, with lower sea ice extents corresponding to hurricanes occurring at higher latitudes."}
 
@@ -496,6 +497,13 @@ To continue this analysis, more factors such as ocean temperature and wind data 
 A major limitation of this analysis is the absence of other basins beyond the Atlantic and Pacific. Although these make up a majority of storms, missing other basins means that these patterns cannot be assumed to be global. Another limitation comes from the climate awareness data, which is missing major countries such as China that could reinforce or violate the patterns currently observed.
 
 # References
+
+<https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2023GL102840?utm_source=chatgpt.com>
+<https://journals.ametsoc.org/view/journals/clim/25/2/jcli-d-11-00034.1.xml>
+<https://www.gfdl.noaa.gov/research_highlight/the-poleward-migration-of-the-location-of-tropical-cyclone-maximum-intensity/>
+<https://www.nature.com/articles/nature13278>
+<https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2023GL102840>
+
 
 I am not strict about MLA or APA style or anything like that. For this report, I would much rather have your citations be easy to match to your insights.
 
