@@ -1,0 +1,265 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\usepackage{adjustbox}
+\usepackage[margin=2cm]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Exploring the Influence of Arctic Sea Ice on Hurricane Latitudinal Shifts and Public Awareness in Affected Countries},
+  pdfauthor={At Least We Are Done},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Exploring the Influence of Arctic Sea Ice on Hurricane Latitudinal Shifts and Public Awareness in Affected Countries}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Exploring Disparate Data: Part 3 - Final Report}
+\author{At Least We Are Done}
+\date{Due November 29th, 2025}
+
+\begin{document}
+\maketitle
+
+Group Members:
+
+\begin{itemize}
+\tightlist
+\item
+  Spencer Robinson (169114936)
+\item
+  Thomas Sefton (169067096)
+\item
+  Paolo Spadano (169126042)
+\end{itemize}
+
+\newpage
+
+\section{Abstract}\label{abstract}
+
+This paper investigates the potential influence of Arctic sea ice variability on the latitude of hurricanes, alongside the public awareness of climate change in countries most affected by tropical storms. Utilizing historical datasets from NOAA on storm tracks and intensities, the MASIE dataset on daily sea ice extent, and survey-based climate awareness data from the Humanitarian Data Exchange, we explore long-term trends in hurricane latitude and frequency. Our analysis reveals a statistically significant decline in the average latitude of hurricanes over the past 150 years, correlating inversely with the previous year's Arctic sea ice extent. Storm development stages were also examined indicating an increase in latitude as storms reached hurricane status, with the strongest storms concentrated in regions experiencing the greatest sea ice reduction. Cross-referencing hurricane exposure with climate awareness metrics, we find that countries with higher storm frequency do not uniformly exhibit heightened awareness. These findings demonstrate the interactions between environmental change, storm behavior, and societal awareness, highlighting the need for targeted communication strategies in vulnerable nations.
+
+\section{Introduction}\label{introduction}
+
+Understanding how climate systems are constantly changing is absolutely essential for assessing future risks to both ecosystems and human populations. Tropical cyclones, sea ice decline, and public climate awareness are rarely examined together, yet they represent some interconnected components of the broader climate system. Hurricanes are strongly influenced by ocean-atmospheric conditions, while arctic sea ice is one of the most sensitive indicators of global warming. At the same time, public awareness of climate change shapes how communities prepare for and respond to environmental hazards. Putting each of these elements side by side provides an opportunity to explore whether shifts in environmental patterns coincide with shifts in storm behavior, and whether affected regions demonstrate corresponding awareness of climate risks. To investigate these relationships, we draw on three major data sets: the NOAA HURDAT2 data set of historical storm tracks and intensities, the MASIE sea ice data set containing daily extent measurements for both hemispheres, and the global climate awareness survey aggregated by the Humanitarian Data Exchange. After cleaning and restructuring these data sets, we apply exploratory data analysis techniques including time-series visualization, summary statistics, scatter plots, and faceted comparisons across storm basins. Together, these allow us to assess long-term storm latitude trends, compare storm characteristics across intensification stages, and evaluate potential associations between environmental conditions for public climate understanding. The goal of this analysis is to determine whether hurricane latitudes have shifted over time and how this relates to Arctic sea-ice variability, to examine how storm latitude differs across storm categories and basins, and to explore whether countries frequently affected by tropical cyclones show higher levels of climate change awareness. These three goals can be addressed using available data, though limitations such as incomplete historical records and self-reported survey measures must be acknowledged.
+
+\section{Data Description}\label{data-description}
+
+\subsection{Sea Ice}\label{sea-ice}
+
+The data come from NOAA's MASIE system and describe sea ice extent, which is the total area covered by at least 15\% ice. The data includes the date of each observation, the region being observed, and the ice extent.
+
+In order to clean the data, we first loaded the two sheets of the .xlsx workbook separately since the data is divided by hemisphere. We then removed unnecessary columns leaving and appropriately naming the month and day columns as well as a column for each year of observation. We then filled in the gaps in the month and pivoted the data so that it no longer had a column for each year. Finally, we sorted the data chronologically by casting the newly formed year column as an integer and converting month to a factor containing the full names of each month.
+
+\subsection{Climate Change Awareness}\label{climate-change-awareness}
+
+The data come from the Humanitarian Data Exchange and detail awareness of climate change around the world based on surveys. It includes the percentage of each observed country that reported each level of awareness.
+
+In order to clean the data, we selected the workbook focusing on aggregate data, pivoting it longer so that countries were no longer each a column. We then converted the answer options on the spreadsheet to more programmatic and clear names (ex. ``Refused'' became ``aware\_refuse''). Finally, we pivoted the data wider to give each level of awareness its own column instead of having a row per country per awareness level.
+
+\subsection{Tropical Cyclone Exposure}\label{tropical-cyclone-exposure}
+
+The data come from the Potsdam Institute for Climate Impact Research and contain information about the impact and frequency of storms by country, but only the storm frequency by country was used here. The data required no cleaning beyond skipping the first six rows of headers.
+
+\subsection{Storms}\label{storms}
+
+The data come from NOAA (affiliated with the American government) and detail the wind speed, lifespan, category, and location of major storms in the Atlantic and Pacific basins.
+
+In order to clean the data, we read in the two .csv files of interest and separated out the one column containing most of the information using the ``,'' delimiter. We then replaced any -99 and -999 values with N/A for consistency and created columns for the basin, number, and year (combined), name, and number of entries. We then downfilled the aforementioned columns, filtered out header rows using the fact that they have no category value, and removed the Entries column (which only had values in header rows). We then separated out the combined BasinNumberYear and time columns. Finally, we renamed the identifier column and cast all numeric variables as such.
+
+\subsection{Combining the Data}\label{combining-the-data}
+
+In order to analyze the ice and storm data together both data sets were annualized and then inner-joined using their respective year variables. Although this limits the granularity of the data, it solves the issue of each data set observing only on random days while still allowing year-over-year trends to be visualized.
+
+We also joined the storm count per country with the climate awareness data, which required converting country names to ISO3 format. This was done manually since only the top 10 most affected countries were joined in this way.
+
+\section{Exploratory Data Analysis}\label{exploratory-data-analysis}
+
+To achieve our goals, we explored the data by looking for historical trends in the development of storms and comparing those to the changes in sea ice year over year. This methodology was chosen in order to identify what exactly was changing about storms and then see if those changes could be attributed to sea ice. We explored many aspects of the data, but will demonstrate three. These are the changes in hurricane latitude over time, latitude changes as a storm develops, and the relationship between one year's sea ice and the next year's hurricane locations.
+
+The first aspect we examined is the long-term trend in hurricane latitude, shown in \ref{fig:insight1}. This given visualization plots the average latitude at which storms reached hurricane strength each year, allowing us to observe how the typical location of hurricane intensity storms shifted over time. Although the data can fluctuate substantially year to year the fitted linear model reveals a clear downward trend over the 170-yr period, indicating that hurricanes have been occurring at slightly lower average latitudes in more recent decades. This aligns with broader research showing that storm tracks can shift as atmospheric circulation patterns evolve. For instance, ``Storm tracks are found to shift equator ward in the North Atlantic and over Europe, and eastward in the North Pacific. In both regions, cyclones become weaker and slower, particularly on the poleward flank of the storm tracks'' (Davis et al., 2024, as summarized in GRL). Suggesting structural changes in mid-latitude steering patterns that may influence where storms travel. Additionally, as shown by Colbert and Soden (2012), the latitude distribution of Atlantic tropical cyclone tracks depends strongly on the storm genesis location, storms originating farther south are more likely to follow lower-latitude, straight-moving tracks, while shifts in genesis latitude or changes in steering flow produce more re curving or higher-latitude tracks (Colbert \& Soden, 2012, as summarized by AMS Journals). Together these findings help contextualize the negative trend observed in our plot.
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{DATA100Assignment3PartII_Final_Report_Template_files/figure-latex/insight1-1.pdf}}
+\caption{\label{fig:insight1}Hurricanes have seen a decrease in average latitude of over 10 degrees since 1850.}
+\end{figure}
+
+The second aspect we explored examines how storm intensity relates to the latitude at which storms occur across different ocean basins, shown in figure \ref{fig:insight2}. When comparing latitude distributions across storm categories, we observe that hurricanes consistently reach higher average latitudes than weaker storm types, particularly in the North Atlantic basin. The North Atlantic also displays a noticeably broader spread of storm latitudes compared to the Eastern and Central Pacific basins, suggesting that stronger storms in this region tend to intensify farther from the equator. This pattern remains consistent with broader findings. NOAA's Geophysical Fluid Dynamics Labratory summarises reesearch showing that the latitude at which the maximum intensity of tropical cyclones occurs has expanded poleward (Kossin et al., 2014, as summarized by NOAA GFDL). The origional nature study underpinning this finding further reports they identify a pronounced poleward migration in the average latitude at which tropical cyclones have achieved their lifetime-maximum intensity over the past 30 years (Kossin, Emanuel \& Vecchi, 2014). Together, these results reinforce the idea that the strongest tropical cyclones reach their peak intensities farther from the equator than in previous years.
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{DATA100Assignment3PartII_Final_Report_Template_files/figure-latex/insight2-1.pdf}}
+\caption{\label{fig:insight2}Box plot showing the distribution of hurricane latitudes at different storm stages, faceted by basin. Hurricanes in the North Atlantic generally rise in latitude as they intensify.}
+\end{figure}
+
+The third aspect we explored examines whether changes in sea ice extent are associated with shifts in where hurricanes tend to form or intensify, demonstrated in figure \ref{fig:insight3}. To investigate this relationship, we merged the annual average latitude of all hurricane-strength storms with the previous year's mean sea ice extent for each hemisphere, using a lagged structure to reflect environmental conditions from the preceding season. The resulting scatter plots reveal clear differences regionally. In the Antarctic panel, hurricane latitude shows almost no association with sea ice extent, forming a cluster with only a weak negative slope. In contrast to this, the Arctic results display a slightly stronger downward trend, suggesting that years with higher legged ice extent are followed by hurricanes occurring at somewhat lower latitudes. Although this pattern remains modest, it is still consistent with broader research linking Arctic sea-ice loss to altered storm behavior. For instance, research reports that sea-ice loss weakens the equator-to-pole temperature gradient, leading to fewer, slower, extra tropical cyclones across the North Atlantic and Pacific basins (Hay et al., 2023, as summarized by GRL). These findings support the hypothesis that sea-ice conditions can influence atmospheric patterns and storm tracks. Overall, our data indicates that sea ice conditions may correspond to subtle, region specific variations in average latitude at which hurricanes reach their strongest intensity.
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{DATA100Assignment3PartII_Final_Report_Template_files/figure-latex/insight3-1.pdf}}
+\caption{\label{fig:insight3}Scatterplot of average hurricane latitude in the current year versus Arctic or Antarctic sea ice extent in the previous year, faceted by hemisphere. The plot indicates an inverse relationship, with lower sea ice extents corresponding to hurricanes occurring at higher latitudes.}
+\end{figure}
+
+As seen in the summary stats table, although some countries experience significantly more storm observations than the global norm, their awareness remains clustered near the worldwide averages. In several cases, awareness levels are slightly lower rather than higher. This pattern suggests that hazard exposure, by itself, is not a reliable predictor of public awareness.
+
+\begin{table}
+\centering\begingroup\fontsize{8}{10}\selectfont
+
+\begin{tabular}{l|>{\raggedright\arraybackslash}p{2.2cm}|>{\raggedright\arraybackslash}p{2.2cm}|>{\raggedright\arraybackslash}p{2.2cm}|>{\raggedright\arraybackslash}p{2.2cm}|l}
+\hline
+\cellcolor[HTML]{4CAF50}{\textcolor{white}{\textbf{country}}} & \cellcolor[HTML]{4CAF50}{\textcolor{white}{\textbf{aware\_no}}} & \cellcolor[HTML]{4CAF50}{\textcolor{white}{\textbf{aware\_alittle}}} & \cellcolor[HTML]{4CAF50}{\textcolor{white}{\textbf{aware\_moderate}}} & \cellcolor[HTML]{4CAF50}{\textcolor{white}{\textbf{aware\_alot}}} & \cellcolor[HTML]{4CAF50}{\textcolor{white}{\textbf{storm\_count}}}\\
+\hline
+Philippines & 7.36 \% & 36.79 \% & 29.4 \% & 21.78 \% & 521\\
+\hline
+Japan & 2.26 \% & 26.56 \% & 59.65 \% & 10.9 \% & 481\\
+\hline
+Mexico & 7.62 \% & 41.43 \% & 43.31 \% & 6.76 \% & 341\\
+\hline
+Vietnam & 17 \% & 42.91 \% & 19.2 \% & 16.95 \% & 281\\
+\hline
+Australia & 1.13 \% & 26.41 \% & 48.1 \% & 23.95 \% & 243\\
+\hline
+United.States & 2.22 \% & 26.47 \% & 48.14 \% & 22.96 \% & 239\\
+\hline
+Taiwan & 5.94 \% & 50.74 \% & 33.88 \% & 9.08 \% & 227\\
+\hline
+India & 18.52 \% & 36.06 \% & 23.99 \% & 18.11 \% & 154\\
+\hline
+Lao.People's.Democratic.Republic & 21.02 \% & 50.97 \% & 18.24 \% & 8.57 \% & 125\\
+\hline
+Hong.Kong & 7.01 \% & 51.29 \% & 31.13 \% & 10.33 \% & 108\\
+\hline
+\textbf{Worldwide Average} & \textbf{12.67 \%} & \textbf{35.83 \%} & \textbf{35.16 \%} & \textbf{13.92 \%} & \textbf{}\\
+\hline
+\end{tabular}
+\endgroup{}
+\end{table}
+
+\section{Conclusion and Future Work}\label{conclusion-and-future-work}
+
+Overall, our analysis demonstrates a consistent trend in the latitudinal movement of hurricanes as well as; ``increasingly powerful storms, and non-linearly growing sea level rise, reaching several meters over a timescale of 50--150 years.''1 By integrating storm data with sea ice records, we found that average hurricane latitudes have shifted northward in response to the summer melt of Arctic sea ice, and the thickness of the ice is shrinking.2 With stronger storms consistently occurring at increasingly higher latitudes within each basin, but most pronounced in the North Atlantic, where median latitudes rise sharply with storm intensity. While cross-year comparisons revealed that hurricanes are influenced by previous year's ice conditions, other basins exhibited weaker correlations, suggesting that there are other factors at play. These findings highlight the importance of considering both environmental variability and long-term trends when evaluating storm behavior.
+
+In terms of societal impact, our examination of climate awareness in the countries most exposed to hurricanes reveals that high storm frequency does not necessarily correspond to greater public understanding of climate change. ``Global efforts have been insufficient, which calls for more stringent climate policies.''4 Some nations experiencing frequent and intense hurricanes exhibited moderate awareness, while others demonstrated comparatively low engagement despite high exposure. This disconnect highlights the critical need for targeted education and communication strategies to bridge the gap between observed environmental risk and public perception. Moving forward, these insights suggest indicating the lack knowledge in vulnerable populations, particularly as extreme weather patterns continue to shift under global climate change.
+
+``The increase is caused by a combination of SMB decrease over the WAIS, combined with subsurface ocean warming that increases sub-ice melt.''3 Additional factors such as ocean temperature and wind data could be included to get a better understanding of how sea ice affects storms. Annual climate awareness information could also be used to understand the impact of these changes on people's understanding of climate change. More precise modelling could also be used to understand where storms make landfall, rather than using the average latitude of the entire trajectory.
+
+A major limitation of this analysis is the absence of other basins beyond the Atlantic and Pacific. Although these make up majority of storms, missing other basins means that these patterns cannot be assumed to be global. Another limitation comes from the climate awareness data, which is missing major countries such as China that could reinforce or violate the patterns currently observed.
+
+\section{References}\label{references}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \url{https://csas.earth.columbia.edu/sites/csas.earth.columbia.edu/files/content/acp-16-3761-2016.pdf}
+\item
+  \url{https://www.sciencedirect.com/science/article/pii/S016980952300385X}
+\item
+  \url{https://www.ipcc.ch/srocc/chapter/chapter-4-sea-level-rise-and-implications-for-low-lying-islands-coasts-and-communities/}
+\item
+  \url{https://www.nature.com/articles/s41558-025-02372-4}\strut \\
+\item
+  Geiger, Tobias; Frieler, Katja; Bresch, David N. (2017): A global data set of tropical cyclone exposure (TCE-DAT). GFZ Data Services. \url{https://doi.org/10.5880/pik.2017.005}
+\item
+  \url{https://masie_web.apps.nsidc.org/pub//DATASETS/NOAA/G02135/seaice_analysis/Sea_Ice_Index_Daily_Extent_G02135_v4.0.xlsx}
+\item
+  \url{https://www.nhc.noaa.gov/data/hurdat/}
+\item
+  \url{https://data.humdata.org/dataset/dc9f2ca4-8b62-4747-89b1-db426ce617a0/resource/6041db5f-8190-47ff-a10b-9841325de841/download/climate_change_opinion_survey_2022_aggregated.xlsx}
+\item
+  \url{https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2023GL102840}
+\item
+  \url{https://journals.ametsoc.org/view/journals/clim/25/2/jcli-d-11-00034.1.xml}
+\item
+  \url{https://www.gfdl.noaa.gov/research_highlight/the-poleward-migration-of-the-location-of-tropical-cyclone-maximum-intensity/}
+\item
+  \url{https://www.nature.com/articles/nature13278}
+\item
+  \url{https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2023GL102840}
+\end{enumerate}
+
+\end{document}
