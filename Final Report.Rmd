@@ -1,0 +1,53 @@
+---
+title: "Final Report"
+output: pdf_document
+date: "2025-12-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r tidying}
+aaup_url = "https://lib.stat.cmu.edu/datasets/colleges/aaup.data"
+usnews_url = "https://lib.stat.cmu.edu/datasets/colleges/usnews.data"
+
+aaup_cols = c("fed_id", "college_name", "state", "type", "avg_sal_full", "avg_sal_associate", "avg_sal_assistant", "avg_sal_all", "avg_comp_full", "avg_comp_associate", "avg_comp_assistant", "avg_comp_all", "num_full", "num_associate", "num_assistant", "num_instructor", "num_all")
+
+usnews_cols = c("fed_id","college_name","state","public_private","avg_sat_math","avg_sat_verbal","avg_sat_combined","avg_act","q1_sat_math","q3_sat_math","q1_sat_verbal","q3_sat_verbal","q1_act","q3_act","num_apps_received","num_apps_accepted","num_new_enrolled","pct_top10_hs","pct_top25_hs","num_ft_undergrads","num_pt_undergrads","tuition_instate","tuition_outstate","room_board_cost","room_cost","board_cost","fees_additional","books_estimated","personal_spending_est","pct_faculty_phd","pct_faculty_terminal","student_faculty_ratio","pct_alumni_donate","instr_exp_per_student","grad_rate")
+
+calc_iqr = function(q1, q3) q3-q1
+
+aaup = read.csv(aaup_url, header = FALSE, col.names = aaup_cols, na.strings = "*") |>
+  mutate(across(starts_with(c("avg", "num")), ~ .x * 100))
+
+usnews = read.csv(usnews_url, header = FALSE, col.names = usnews_cols, na.strings = "*") |>
+  mutate(public_private = factor(public_private, levels = c(1, 2), labels = c("public", "private"))) |>
+  mutate(sat_math_iqr = calc_iqr(q1_sat_math, q3_sat_math), sat_verbal_iqr = calc_iqr(q1_sat_verbal, q3_sat_verbal)) |>
+  mutate(state = fct_lump(state, 15))
+
+pub_vs_priv = usnews |>
+  group_by(public_private) |>
+  summarize(avg_tuition = mean(tuition_instate, na.rm = TRUE), avg_grad_rate = mean(grad_rate, na.rm = TRUE), avg_sat = mean(avg_sat_combined, na.rm = TRUE))
+
+sat_long <- usnews |>
+  pivot_longer(
+    cols = matches("^(avg|q1|q3)_(sat|act)"),
+    names_to = c("stat", "test", "section"),
+    names_pattern = "^(avg|q1|q3)_(sat|act)_?(math|verbal)?$",
+    values_to = "score"
+  ) |>
+  select(fed_id, college_name, state, stat, test, section, score)
+
+```
+
+```{r plots}
+usnews |>
+  select(public_private, tuition_instate, tuition_outstate) |>
+  pivot_longer(cols = c(tuition_instate, tuition_outstate), names_to = "instate_outstate", values_to = "tuition") |>
+  ggplot() +
+    geom_violin(aes(x = public_private, y = tuition, fill = instate_outstate, colour = instate_outstate))
+
+
+```
