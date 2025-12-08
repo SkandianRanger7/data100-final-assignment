@@ -12,6 +12,10 @@ library(xgboost)
 library(recipes)
 library(rsample)
 library(tidymodels)
+library(tictoc)
+library(doParallel)
+library(yardstick)
+library(ranger)
 ```
 
 ```{r tidying}
@@ -73,56 +77,100 @@ ggplot(usnews_scatter) +
 ```
 
 ```{r modelling}
-uni_split <- initial_split(usnews, prop = 0.75, strata = public_private)
+uni_split <- initial_split(usnews, prop = 0.6, strata = public_private)
 uni_train <- training(uni_split)
 uni_test <- testing(uni_split)
 
-# 1. Define the XGBoost model specification, leaving tunable parameters
 xgb_tune_spec <- boost_tree(
-  trees = tune(),        # TUNE: Number of trees/iterations
-  tree_depth = tune(),   # TUNE: Complexity of each tree
-  learn_rate = tune(),   # TUNE: Step size shrinkage
-  min_n = tune(),        # TUNE: Minimum data points required in a node
-  mtry = tune()          # TUNE: Fraction of predictors sampled at each split
+  trees = tune(),
+  tree_depth = tune(),
+  learn_rate = tune(),
 ) |>
   set_engine("xgboost") |>
   set_mode("classification")
 
-# 2. Define the parameter space (optional, but good practice for specific ranges)
 xgb_params <- parameters(
   trees(range = c(500, 2000)),
   tree_depth(range = c(3, 10)),
-  learn_rate(range = c(-3, -1), trans = log10_trans()), # Log-uniform search
-  min_n(),
-  mtry(range = c(0.1, 1.0), trans = NULL) # As a proportion
+  learn_rate(range = c(-3, -1), trans = log10_trans()) # Log-uniform search
 )
 
-uni_folds <- vfold_cv(uni_train, v = 10, strata = public_private)
-cl <- makePSOCKcluster(4) # Example: use 4 cores
-registerDoParallel(cl)
-print("Parallel processing enabled.")
+rf_tune_spec <- rand_forest(
+  trees = 1000,
+  mtry = tune(),
+  min_n = tune()
+) |>
+  set_engine("ranger") |> 
+  set_mode("classification")
 
-xgb_workflow <- workflow() |>
-  add_recipe(uni_recipe) |>
-  add_model(xgb_tune_spec)
+rf_params <- parameters(
+  mtry(range = c(5, 30)), 
+  min_n(range = c(5, 40))
+)
+
+uni_folds <- vfold_cv(uni_train, v = 2, strata = public_private)
+
+cl <- makePSOCKcluster(detectCores() - 4)
+registerDoParallel(cl)
+print("Parallel processing enabled")
+
+full_recipe <- recipe(public_private ~ ., data = uni_train) |>
+  update_role(
+    c(fed_id, college_name), 
+    new_role = "ID") |>
+  step_novel(state) |>
+  step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
+  step_impute_median(all_numeric_predictors()) |>
+  step_normalize(all_numeric_predictors())
+
+costless_recipe <- recipe(public_private ~ ., data = uni_train) |>
+  update_role(
+    c(fed_id, college_name, tuition_instate, tuition_outstate, room_board_cost, room_cost, board_cost, fees_additional, books_estimated, personal_spending_est, instr_exp_per_student), 
+    new_role = "ID") |>
+  step_novel(state) |>
+  step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
+  step_impute_median(all_numeric_predictors()) |>
+  step_normalize(all_numeric_predictors())
+
+apps_recipe <- recipe(public_private ~ num_apps_received + num_new_enrolled + pct_top10_hs, data = uni_train) |>
+  step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
+  step_impute_median(all_numeric_predictors()) |>
+  step_normalize(all_numeric_predictors())
+
+workflows <- workflow_set(preproc = list(full = full_recipe, costless = costless_recipe, apps = apps_recipe), 
+                             models = list(xgb = xgb_tune_spec, rf = rf_tune_spec))
 
 # Start timer
 tic()
 
-# Run the Bayesian Optimization
-xgb_bayes_result <- tune_bayes(
-  xgb_workflow,
-  resamples = uni_folds,
-  iter = 20,                # Number of iterations (models to fit)
-  param_info = xgb_params,  # Use the defined parameter ranges
-  metrics = metric_set(roc_auc, accuracy), # Optimize for AUC
-  control = control_bayes(
-    no_improve = 10,        # Stop if no improvement after 10 iterations
-    save_pred = TRUE,
-    verbose = TRUE,
-    seed = 42
+bayes_results = list()
+
+
+map(workflows$wflow_id, function(id) {
+  
+  current_workflow <- workflows |>
+        extract_workflow(id = id)
+  
+  if (str_detect(id, "rf")) {
+    current_params <- rf_params
+  } else {
+    current_params <- xgb_params
+  }
+  
+  # Run the Bayesian Optimization
+  bayes_results[[id]] <<- tune_bayes(
+    current_workflow,
+    resamples = uni_folds,
+    iter = 5,                # Number of iterations (models to fit)
+    param_info = current_params,  # Use the defined parameter ranges
+    metrics = metric_set(roc_auc, accuracy), # Optimize for AUC
+    control = control_bayes(
+      no_improve = 10,        # Stop if no improvement after 10 iterations
+      save_pred = TRUE,
+      verbose = TRUE
   )
 )
+})
 
 # Stop parallel processing
 stopCluster(cl)
@@ -130,18 +178,64 @@ stopCluster(cl)
 # End timer
 toc()
 
-show_best(xgb_bayes_result, metric = "roc_auc")
+#show_best(xgb_bayes_result, metric = "roc_auc")
+final_fits = list()
+best_params = list()
+for (mod_name in names(bayes_results)){
+  
+  current_best_params <- select_best(bayes_results[[mod_name]], metric = "roc_auc")
+  
+  best_params[[mod_name]] = current_best_params
+  
+  final_workflow <- workflows |>
+    extract_workflow(id = mod_name) |>
+    finalize_workflow(current_best_params)
+  
+  final_fits[[mod_name]] <- final_workflow |>
+    fit(data = uni_train)
+}
 
-# 2. Select the final best set of hyperparameters
-best_xgb_params <- select_best(xgb_bayes_result, metric = "roc_auc")
 
-# 3. Finalize the workflow with the best parameters
-final_xgb_workflow <- xgb_workflow |>
-  finalize_workflow(best_xgb_params)
-
-# 4. Fit the final model to the entire training set (or the full initial dataset)
-final_xgb_fit <- final_xgb_workflow |>
-  fit(data = uni_train) # Fit on the entire training set
+```
 
 
+```{r}
+# 1. Iterate over the list of final fits and calculate metrics for each
+final_results <- map_dfr(
+  final_fits, 
+  .f = function(model_fit) {
+    
+    test_predictions <- predict(model_fit, new_data = uni_test, type = "prob") |>
+     bind_cols(uni_test |> select(public_private))
+
+    class_predictions <- predict(model_fit, new_data = uni_test, type = "class")
+
+    test_predictions <- test_predictions |>
+      bind_cols(class_predictions)
+      
+    # B. Calculate metrics using the predictions
+    # Note: We use .pred_public here, but ensure this is the correct 'event' level
+    roc_auc_result <- test_predictions |>
+      roc_auc(
+        truth = public_private,
+        .pred_public
+      )
+    
+    # C. Also calculate accuracy for a second metric
+    accuracy_result <- test_predictions |>
+      accuracy(
+        truth = public_private,
+        estimate = .pred_class # Assumes you also generated class predictions
+      )
+    
+    # Combine all metrics into a single row tibble
+    bind_rows(roc_auc_result, accuracy_result)
+  },
+  .id = "model_name" # Create a new column identifying which model the results belong to
+)
+
+final_results <- final_results |> pivot_wider(names_from = .metric, values_from = .estimate)
+
+## 2. Print the final tidy table of results
+print(final_results)
 ```
