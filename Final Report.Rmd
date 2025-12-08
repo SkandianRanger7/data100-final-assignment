@@ -7,6 +7,11 @@ date: "2025-12-01"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(ggrepel)
+library(xgboost)
+library(recipes)
+library(rsample)
+library(tidymodels)
 ```
 
 ```{r tidying}
@@ -24,8 +29,7 @@ aaup = read.csv(aaup_url, header = FALSE, col.names = aaup_cols, na.strings = "*
 
 usnews = read.csv(usnews_url, header = FALSE, col.names = usnews_cols, na.strings = "*") |>
   mutate(public_private = factor(public_private, levels = c(1, 2), labels = c("public", "private"))) |>
-  mutate(sat_math_iqr = calc_iqr(q1_sat_math, q3_sat_math), sat_verbal_iqr = calc_iqr(q1_sat_verbal, q3_sat_verbal)) |>
-  mutate(state = fct_lump(state, 15))
+  mutate(sat_math_iqr = calc_iqr(q1_sat_math, q3_sat_math), sat_verbal_iqr = calc_iqr(q1_sat_verbal, q3_sat_verbal))
 
 pub_vs_priv = usnews |>
   group_by(public_private) |>
@@ -48,6 +52,96 @@ usnews |>
   pivot_longer(cols = c(tuition_instate, tuition_outstate), names_to = "instate_outstate", values_to = "tuition") |>
   ggplot() +
     geom_violin(aes(x = public_private, y = tuition, fill = instate_outstate, colour = instate_outstate))
+
+usnews |>
+  mutate(state = fct_lump(state, 4)) |>
+  ggplot() +
+  geom_boxplot(aes(x = reorder(state, grad_rate, FUN=median), y = grad_rate, fill = state)) +
+  facet_wrap(~public_private)
+
+usnews_scatter <- usnews |> 
+  group_by(state) |>
+  summarize(universities = n(),
+            percent_private = sum(public_private == "private") / n())
+
+max_uni_state <- usnews_scatter |>
+  filter(universities == max(universities))
+
+ggplot(usnews_scatter) +
+  geom_point(aes(x = universities, y = percent_private)) +
+  geom_label_repel(data = max_uni_state, aes(x = universities, y = percent_private, label = state))
+```
+
+```{r modelling}
+uni_split <- initial_split(usnews, prop = 0.75, strata = public_private)
+uni_train <- training(uni_split)
+uni_test <- testing(uni_split)
+
+# 1. Define the XGBoost model specification, leaving tunable parameters
+xgb_tune_spec <- boost_tree(
+  trees = tune(),        # TUNE: Number of trees/iterations
+  tree_depth = tune(),   # TUNE: Complexity of each tree
+  learn_rate = tune(),   # TUNE: Step size shrinkage
+  min_n = tune(),        # TUNE: Minimum data points required in a node
+  mtry = tune()          # TUNE: Fraction of predictors sampled at each split
+) |>
+  set_engine("xgboost") |>
+  set_mode("classification")
+
+# 2. Define the parameter space (optional, but good practice for specific ranges)
+xgb_params <- parameters(
+  trees(range = c(500, 2000)),
+  tree_depth(range = c(3, 10)),
+  learn_rate(range = c(-3, -1), trans = log10_trans()), # Log-uniform search
+  min_n(),
+  mtry(range = c(0.1, 1.0), trans = NULL) # As a proportion
+)
+
+uni_folds <- vfold_cv(uni_train, v = 10, strata = public_private)
+cl <- makePSOCKcluster(4) # Example: use 4 cores
+registerDoParallel(cl)
+print("Parallel processing enabled.")
+
+xgb_workflow <- workflow() |>
+  add_recipe(uni_recipe) |>
+  add_model(xgb_tune_spec)
+
+# Start timer
+tic()
+
+# Run the Bayesian Optimization
+xgb_bayes_result <- tune_bayes(
+  xgb_workflow,
+  resamples = uni_folds,
+  iter = 20,                # Number of iterations (models to fit)
+  param_info = xgb_params,  # Use the defined parameter ranges
+  metrics = metric_set(roc_auc, accuracy), # Optimize for AUC
+  control = control_bayes(
+    no_improve = 10,        # Stop if no improvement after 10 iterations
+    save_pred = TRUE,
+    verbose = TRUE,
+    seed = 42
+  )
+)
+
+# Stop parallel processing
+stopCluster(cl)
+
+# End timer
+toc()
+
+show_best(xgb_bayes_result, metric = "roc_auc")
+
+# 2. Select the final best set of hyperparameters
+best_xgb_params <- select_best(xgb_bayes_result, metric = "roc_auc")
+
+# 3. Finalize the workflow with the best parameters
+final_xgb_workflow <- xgb_workflow |>
+  finalize_workflow(best_xgb_params)
+
+# 4. Fit the final model to the entire training set (or the full initial dataset)
+final_xgb_fit <- final_xgb_workflow |>
+  fit(data = uni_train) # Fit on the entire training set
 
 
 ```
