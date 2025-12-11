@@ -48,34 +48,24 @@ The tidying process involved reading two datasets: one on faculty compensation (
 ```{r tidying}
 aaup_url = "https://lib.stat.cmu.edu/datasets/colleges/aaup.data"
 usnews_url = "https://lib.stat.cmu.edu/datasets/colleges/usnews.data"
-
 aaup_cols = c("fed_id", "college_name", "state", "type", "avg_sal_full", "avg_sal_associate", "avg_sal_assistant", "avg_sal_all", "avg_comp_full", "avg_comp_associate", "avg_comp_assistant", "avg_comp_all", "num_full", "num_associate", "num_assistant", "num_instructor", "num_all")
-
 usnews_cols = c("fed_id","college_name","state","public_private","avg_sat_math","avg_sat_verbal","avg_sat_combined","avg_act","q1_sat_math","q3_sat_math","q1_sat_verbal","q3_sat_verbal","q1_act","q3_act","num_apps_received","num_apps_accepted","num_new_enrolled","pct_top10_hs","pct_top25_hs","num_ft_undergrads","num_pt_undergrads","tuition_instate","tuition_outstate","room_board_cost","room_cost","board_cost","fees_additional","books_estimated","personal_spending_est","pct_faculty_phd","pct_faculty_terminal","student_faculty_ratio","pct_alumni_donate","instr_exp_per_student","grad_rate")
-
 calc_iqr = function(q1, q3) q3-q1
-
 aaup = read.csv(aaup_url, header = FALSE, col.names = aaup_cols, na.strings = "*") |>
   mutate(across(starts_with(c("avg", "num")), ~ .x * 100))
-
 usnews = read.csv(usnews_url, header = FALSE, col.names = usnews_cols, na.strings = "*") |>
   mutate(public_private = factor(public_private, levels = c(1, 2), labels = c("public", "private"))) |>
   mutate(sat_math_iqr = calc_iqr(q1_sat_math, q3_sat_math), sat_verbal_iqr = calc_iqr(q1_sat_verbal, q3_sat_verbal))
-
 train_val_split <- initial_split(usnews, prop = 0.8, strata = public_private)
 uni_train_val <- training(train_val_split)
 uni_test <- testing(train_val_split) # 20% for final evaluation
-
 train_val_split_2 <- initial_split(uni_train_val, prop = 0.75, strata = public_private)
 uni_train <- training(train_val_split_2) # 60% for training
 uni_val <- testing(train_val_split_2) # 20% for validation
-
 usnews <- uni_train # Ensures only training data is used for plots
-
 pub_vs_priv = usnews |>
   group_by(public_private) |>
   summarize(avg_tuition = mean(tuition_instate, na.rm = TRUE), avg_grad_rate = mean(grad_rate, na.rm = TRUE), avg_sat = mean(avg_sat_combined, na.rm = TRUE))
-
 sat_long <- usnews |>
   pivot_longer(
     cols = matches("^(avg|q1|q3)_(sat|act)"),
@@ -84,12 +74,11 @@ sat_long <- usnews |>
     values_to = "score"
   ) |>
   select(fed_id, college_name, state, stat, test, section, score)
-
 ```
 
 
 # Exploratory Plots
-```{r, fig.height = 3}
+```{r}
 iqr_long <- usnews |>
   select(public_private, sat_math_iqr, sat_verbal_iqr) |>
   pivot_longer(
@@ -97,10 +86,8 @@ iqr_long <- usnews |>
     names_to = "SAT_Section_IQR",
     values_to = "IQR_Value"
   ) |>
-  # Clean up names for plot labels
   mutate(SAT_Section_IQR = str_remove(SAT_Section_IQR, "sat_"),
          SAT_Section_IQR = str_replace(SAT_Section_IQR, "_iqr", ""))
-
 exp_plot_1 <- ggplot(iqr_long, aes(x = public_private, y = IQR_Value, fill = SAT_Section_IQR)) +
   geom_boxplot() +
   facet_wrap(~ SAT_Section_IQR) + # Separate Math and Verbal IQR distributions
@@ -113,7 +100,7 @@ exp_plot_1 <- ggplot(iqr_long, aes(x = public_private, y = IQR_Value, fill = SAT
   theme(legend.position = "bottom")
 ```
 
-```{r plots, fig.height=2}
+```{r plots, fig.height=3}
 exp_plot_2 <- usnews |>
   select(public_private, tuition_instate, tuition_outstate) |>
   pivot_longer(cols = c(tuition_instate, tuition_outstate), names_to = "instate_outstate", values_to = "tuition") |>
@@ -127,7 +114,6 @@ exp_plot_2 <- usnews |>
     fill = "Tuition Type",
     caption = "Private instututions charge far higher tuition, and out-of-state tuition exceeds in-state across both types.") + 
   theme(legend.position = "bottom")
-
 exp_plot_1 + exp_plot_2
 ```
 Across both tests the IQR is quite similar between public and private institutions. However, the math spread is slightly wider. Private schools tend to have more upward outliers suggesting that they catch many of the highest achieving students.
@@ -147,21 +133,18 @@ aaup_salary_long <- aaup |>
     names_pattern = "avg_sal_(.*)",
     values_to = "avg_salary"
   ) |>
-# I am ordering ranks for x-axis
   mutate(
     rank = factor(
       rank,
       levels = c("assistant", "associate", "full", "all"), 
       labels = c("Assistant", "Associate", "Full", "All ranks")
   ))
-# Now summarizing mean salary by type and rank
 salary_summary <- aaup_salary_long |>
   group_by(type, rank) |>
   summarise(
     mean_salary = mean(avg_salary, na.rm = TRUE) / 100,
     .groups = "drop"
   )
-
 ggplot(salary_summary) +
   geom_col(aes(x = rank, y = mean_salary, fill = rank)) +
   facet_wrap(~type) +
@@ -193,7 +176,7 @@ usnews |>
   theme_bw()
 ```
 
-```{r, fig.height=2}
+```{r, fig.height=3}
 usnews |>
   select(public_private, grad_rate, tuition_instate, tuition_outstate) |>
   pivot_longer(
@@ -224,44 +207,33 @@ Source: https://www.urban.org/sites/default/files/publication/101635/comparing_c
 
 ```{r modelling}
 lm_spec <- linear_reg() |> set_engine("lm")
-
 formulas_to_test <- list(
   Grad_Exp_Full = grad_rate ~ instr_exp_per_student * public_private,
   Grad_Exp_No_Int = grad_rate ~ instr_exp_per_student + public_private,
   Grad_Exp_No_Cont = grad_rate ~ public_private,
-  
   Grad_Ratio_Full = grad_rate ~ student_faculty_ratio * public_private,
   Grad_Ratio_No_Int = grad_rate ~ student_faculty_ratio + public_private,
   Grad_Ratio_No_Cont = grad_rate ~ public_private
 )
-
 calculate_rmse <- function(fit, data) {
   preds <- predict(fit, new_data = data) |> 
     bind_cols(data |> select(grad_rate))
-  
   rmse_value <- preds |> 
     rmse(truth = grad_rate, estimate = .pred) |>
     select(.estimate) |>
     pull()
-  
   return(rmse_value)
 }
-
 fit_and_validate <- function(formula, spec, data) {
   wf <- workflow() |>
     add_model(spec) |>
     add_formula(formula)
-  
   fit <- wf |> fit(data = data)
-  
   list(fit = fit, rmse = calculate_rmse(fit, uni_val))
 }
-
 model_results <- purrr::map(formulas_to_test, ~fit_and_validate(.x, lm_spec, uni_train))
-
 grad_exp_fit_full <- model_results$Grad_Exp_Full$fit
 grad_ratio_fit_full <- model_results$Grad_Ratio_Full$fit
-
 rmse_comparison_table <- tibble(
   Model = names(model_results),
   RMSE_Validation = purrr::map_dbl(model_results, "rmse")
@@ -275,9 +247,7 @@ rmse_comparison_table <- tibble(
       .default = "Error"
     )
   )
-
 kable(rmse_comparison_table) 
-
 ggplot(rmse_comparison_table) +
   geom_col(aes(x = Model, y = RMSE_Validation, fill = Model_Family), show.legend = FALSE) +
   geom_text(aes(x = Model, y = RMSE_Validation, label = round(RMSE_Validation, 2)), 
@@ -294,8 +264,6 @@ ggplot(rmse_comparison_table) +
 ```
 
 ```{r advanced_modelling, results = 'hide'}
-
-
 xgb_tune_spec <- boost_tree(
   trees = tune(),
   tree_depth = tune(),
@@ -305,15 +273,12 @@ xgb_tune_spec <- boost_tree(
 ) |>
   set_engine("xgboost") |>
   set_mode("classification")
-
-
 xgb_params <- parameters(
   trees(range = c(500, 2000)),
   tree_depth(range = c(3, 10)),
   mtry(range = c(3, 30)),
   min_n(range = c(3, 40))
 )
-
 rf_tune_spec <- rand_forest(
   trees = 1000,
   mtry = tune(),
@@ -321,18 +286,14 @@ rf_tune_spec <- rand_forest(
 ) |>
   set_engine("ranger") |> 
   set_mode("classification")
-
 rf_params <- parameters(
   mtry(range = c(3, 30)), 
   min_n(range = c(3, 40))
 )
-
 uni_folds <- vfold_cv(uni_train, v = 2, strata = public_private)
-
 cl <- makePSOCKcluster(detectCores() - 4)
 registerDoParallel(cl)
 print("Parallel processing enabled")
-
 full_recipe <- recipe(public_private ~ ., data = uni_train) |>
   update_role(
     c(fed_id, college_name), 
@@ -341,7 +302,6 @@ full_recipe <- recipe(public_private ~ ., data = uni_train) |>
   step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
   step_impute_median(all_numeric_predictors()) |>
   step_normalize(all_numeric_predictors())
-
 costless_recipe <- recipe(public_private ~ ., data = uni_train) |>
   update_role(
     c(fed_id, college_name, tuition_instate, tuition_outstate, room_board_cost, room_cost, board_cost, fees_additional, books_estimated, personal_spending_est, instr_exp_per_student), 
@@ -350,37 +310,23 @@ costless_recipe <- recipe(public_private ~ ., data = uni_train) |>
   step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
   step_impute_median(all_numeric_predictors()) |>
   step_normalize(all_numeric_predictors())
-
 apps_recipe <- recipe(public_private ~ num_apps_received + num_new_enrolled + pct_top10_hs, data = uni_train) |>
   step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
   step_impute_median(all_numeric_predictors()) |>
   step_normalize(all_numeric_predictors())
-
 workflows <- workflow_set(preproc = list(full = full_recipe, costless = costless_recipe, apps = apps_recipe), 
                              models = list(xgb = xgb_tune_spec, rf = rf_tune_spec))
-
-
-# Start timer
 tic()
-
 bayes_results = list()
-
-
 map(workflows$wflow_id, function(id) {
-  
   current_workflow <- workflows |>
         extract_workflow(id = id)
-  
   current_metrics = metric_set(roc_auc, accuracy)
-  
   if (str_detect(id, "rf")) {
     current_params <- rf_params
   } else {
     current_params <- xgb_params
   }
-  
-  
-    # Run the Bayesian Optimization
   bayes_results[[id]] <<- tune_bayes(
     current_workflow,
     resamples = uni_folds,
@@ -393,69 +339,48 @@ map(workflows$wflow_id, function(id) {
       verbose = TRUE
   ))
 })
-
-# Stop parallel processing
 stopCluster(cl)
-
-# End timer
 toc()
-
 final_fits = list()
 best_params = list()
 for (mod_name in names(bayes_results)){
-
   current_best_params <- select_best(bayes_results[[mod_name]], metric = "roc_auc")
-  
-  
   best_params[[mod_name]] = current_best_params
-  
   final_workflow <- workflows |>
     extract_workflow(id = mod_name) |>
     finalize_workflow(current_best_params)
-  
   final_fits[[mod_name]] <- final_workflow |>
     fit(data = uni_train)
 }
-
-
 ```
 
 ```{r}
 final_results <- map_dfr(
   final_fits, 
   .f = function(model_fit) {
-    
     test_predictions <- predict(model_fit, new_data = uni_test, type = "prob") |>
      bind_cols(uni_test |> select(public_private))
-
     class_predictions <- predict(model_fit, new_data = uni_test, type = "class")
-
     test_predictions <- test_predictions |>
       bind_cols(class_predictions)
-      
     roc_auc_result <- test_predictions |>
       roc_auc(
         truth = public_private,
         .pred_public
       )
-    
     accuracy_result <- test_predictions |>
       accuracy(
         truth = public_private,
         estimate = .pred_class 
       )
-    
     bind_rows(roc_auc_result, accuracy_result)
   },
   .id = "model_name" 
 )
-
 final_results <- final_results |> 
   pivot_wider(names_from = .metric, values_from = .estimate) |>
   separate_wider_delim(model_name, "_", names = c("recipe", "model"))
-
 kable(final_results)
-
 ggplot(final_results) +
   geom_col(aes(x=model, y=accuracy, fill=model)) +
   facet_wrap(~recipe)
