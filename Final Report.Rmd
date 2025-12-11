@@ -1,7 +1,6 @@
 ---
 title: "Predicting University Graduation Outcomes: An Analysis of Institutional Type, Resources, and Tuition"
 author: "Spencer Robinson, Thomas Sefton, and Paolo Spadano"
-date: "2025-12-10"
 output: 
   bookdown::pdf_document2:
     toc: false
@@ -31,9 +30,9 @@ library(knitr)
 
 Graduation outcomes differ greatly between public and private universities.
 National NCES data on six-year following graduation rates indicated that students at private four-year institutions graduate at slightly higher rates on average than those at public four-year colleges, a gap that other analyses attribute partly to differences in selectivity, resources, and student support services.
-For example, federal statistics report six-year graduation rates in the high 65-69 percent range at private compared with to a low 60-65 percent range at public institutions, while Urban Institute work using state-level samples finds that some private colleges within a state exceed 90 percent completion versus many public campuses clustered closer to 50 percent.
-Together, these patterns suggest that the same structural features that drive higher tuition at private universities may also be linked to stronger completion outcomes, even as considerable variation exists within each sector.
-Sources: <https://nces.ed.gov/fastfacts/display.asp?id=40#>:\~:text=63%20percent%20at%20public%20institutions%2C%2068%20percent%20at%20private%20nonprofit <https://www.bestcolleges.com/research/college-graduation-rates/>
+For example, federal statistics report six-year graduation rates in the high 65-69% range at private compared with to a low 60-65% range at public institutions, while Urban Institute work using state-level samples finds that some private colleges within a state exceed 90% completion versus many public campuses clustered closer to 50%.
+Together, these patterns suggest that the same structural features that drive higher tuition at private universities may also be linked to stronger outcomes, even as considerable variation exists.
+Sources: <https://nces.ed.gov/fastfacts/display.asp?id=40#> <https://www.bestcolleges.com/research/college-graduation-rates/>
 
 The structure of state higher-education systems further shapes how these patterns appear across the country.
 Nationwide tallies of Title IV institutions show that public universities make up less than one-third of all colleges, while private nonprofit and for-profit institutions together account for the majority, meaning that in many states most campuses are privately controlled even when public systems enroll more students.
@@ -108,7 +107,7 @@ usnews |> select(public_private, tuition_instate, tuition_outstate) |>
   labs(title = "Distribution of In-State vs Out-of-State Tuition",
     subtitle = "Tuition Levels Differ Substantially Between Public and Private Institutions",
     x = "Institution Type",y = "Tuition Cost (USD)",fill = "Tuition Type",
-    caption = "Private instututions charge far higher tuition, and out-of-state tuition exceeds in-state across both types.") + 
+    caption = "Private schools charge far higher tuition but discrimate less by location") + 
   theme_bw()
 ```
 Public universities offer significantly lower in-state tuition due to state subsidies, while out of state students face generally higher charges.
@@ -157,9 +156,7 @@ usnews |> mutate(state = fct_lump(state, 4)) |>
   facet_wrap(~public_private) + labs(
     title = "Graduation Rates Across States and Institution Types",
     subtitle = "States Grouped into the Most Frequent Categories - Remaining States Grouped as 'Other'",
-    x = "State",
-    y = "Graduation Rate (%)",
-    fill = "State",
+    x = "State",y = "Graduation Rate (%)",fill = "State",
     caption = "Private universities generally show higher median graduation rates than public across states.") +
   theme_bw()
 ```
@@ -178,13 +175,12 @@ usnews |> select(public_private, grad_rate, tuition_instate, tuition_outstate) |
   geom_point(alpha = 0.6) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
   facet_wrap(~ tuition_type, scales = "free_x") +
-  labs(
-    title = "Graduation Rate vs. Tuition Cost by Institution Type",
+  labs(title = "Graduation Rate vs. Tuition Cost by Institution Type",
     subtitle = "Comparing In-State and Out-of-State Tuition Levels",
     x = "Tuition Cost (USD)",
     y = "Graduation Rate (%)",
     color = "Institution Type",
-    caption = "Private institutions generally charge higher tuition but also show a wider range of graduation outcomes.") +
+    caption = "Private schools generally charge more tuition but show a wider range of graduation outcomes.") +
   theme_bw()
 ```
 
