@@ -21,6 +21,7 @@ library(doParallel)
 library(yardstick)
 library(ranger)
 library(patchwork)
+library(knitr)
 ```
 
 # Introduction
@@ -88,7 +89,7 @@ sat_long <- usnews |>
 
 
 # Exploratory Plots
-```{r}
+```{r, fig.height = 3}
 iqr_long <- usnews |>
   select(public_private, sat_math_iqr, sat_verbal_iqr) |>
   pivot_longer(
@@ -100,7 +101,7 @@ iqr_long <- usnews |>
   mutate(SAT_Section_IQR = str_remove(SAT_Section_IQR, "sat_"),
          SAT_Section_IQR = str_replace(SAT_Section_IQR, "_iqr", ""))
 
-ggplot(iqr_long, aes(x = public_private, y = IQR_Value, fill = SAT_Section_IQR)) +
+exp_plot_1 <- ggplot(iqr_long, aes(x = public_private, y = IQR_Value, fill = SAT_Section_IQR)) +
   geom_boxplot() +
   facet_wrap(~ SAT_Section_IQR) + # Separate Math and Verbal IQR distributions
   labs(
@@ -108,12 +109,12 @@ ggplot(iqr_long, aes(x = public_private, y = IQR_Value, fill = SAT_Section_IQR))
     x = "Institution Type",
     y = "Score IQR (Q3 - Q1)",
     fill = "SAT Section"
-  )
+  ) +
+  theme(legend.position = "bottom")
 ```
-Across both tests the IQR is quite similar between public and private institutions. However, the math spread is slightly wider. Private schools tend to have more upward outliers suggesting that they catch many of the highest achieving students.
 
-```{r plots}
-usnews |>
+```{r plots, fig.height=2}
+exp_plot_2 <- usnews |>
   select(public_private, tuition_instate, tuition_outstate) |>
   pivot_longer(cols = c(tuition_instate, tuition_outstate), names_to = "instate_outstate", values_to = "tuition") |>
   ggplot() +
@@ -125,8 +126,12 @@ usnews |>
     y = "Tuition Cost (USD)",
     fill = "Tuition Type",
     caption = "Private instututions charge far higher tuition, and out-of-state tuition exceeds in-state across both types.") + 
-  theme_bw()
+  theme(legend.position = "bottom")
+
+exp_plot_1 + exp_plot_2
 ```
+Across both tests the IQR is quite similar between public and private institutions. However, the math spread is slightly wider. Private schools tend to have more upward outliers suggesting that they catch many of the highest achieving students.
+
 The distribution of tuition costs shows a clear divide between public and private institutions. Public universities offer significantly lower in-state tuition due to state subsidies, while out of state students face generally higher charges. Private universities do not differentiate based on residency status, display substantially higher tuition overall with greater variation. This pattern aligns with national tuition statistic from the U.S. Department of Education, which shows that private institutions charge substantially higher tuition and that out-of-state students at public universities pay considerably higher than in-state students (NCES, 2024). These differneces in tuition structue highlight the financial contrast between institution types and the importance of residency in determining affordability.
 Source: https://nces.ed.gov/programs/digest/d23/tables/dt23_330.10.asp
 
@@ -172,24 +177,24 @@ These four bar plots compare average faculty salaries across AAUP institutional 
 Source: https://www.aaup.org/explanation-statistical-data-5
 
 # Modelling Plots
-```{r}
-mod_plot_1 <- usnews |>
+```{r, fig.height=3}
+usnews |>
   mutate(state = fct_lump(state, 4)) |>
   ggplot() +
   geom_boxplot(aes(x = reorder(state, grad_rate, FUN=median), y = grad_rate, fill = state)) +
   facet_wrap(~public_private) +
   labs(
     title = "Graduation Rates Across States and Institution Types",
-    subtitle = "States Grouped into the Top 4 Most Frequent Categories - Remaining States Grouped as 'Other'",
-    x = "State (Top 4 + Other)",
+    subtitle = "States Grouped into the Most Frequent Categories - Remaining States Grouped as 'Other'",
+    x = "State",
     y = "Graduation Rate (%)",
     fill = "State",
     caption = "Private universities generally show higher median graduation rates than public across states.") +
   theme_bw()
 ```
 
-```{r}
-mod_plot_2 <- usnews |>
+```{r, fig.height=2}
+usnews |>
   select(public_private, grad_rate, tuition_instate, tuition_outstate) |>
   pivot_longer(
     cols = c(tuition_instate, tuition_outstate),
@@ -209,49 +214,26 @@ mod_plot_2 <- usnews |>
     caption = "Private institutions generally charge higher tuition but also show a wider range of graduation outcomes."
   ) +
   theme_bw()
-
-mod_plot_1 + mod_plot_2
 ```
+The above scatter plot shows that despite private schools almost always charging higher tuition, graduation outcomes are still mixed. This indicates that public or private status alone is a weak indicator of graduation rate, but are still important to consider since graduation rates only reach their true peaks at private schools.
+
 This box and whisker plot compares graduation rates across the most common states in the dataset, seperated by public and private institutions. Private institutions consistently show higher median graduation rates than public universities within the same states, reflecting differences in selectivity student support and available resources. Findings from Urban Institute data, support our plot, showing that private four-year colleges report substantially higher graduation rates than public four-year colleges withing the same state, with private institutions reaching graduation rates above 90% compared to many public schools clustered near 50% (Urban Institute, 2024).
 Source: https://www.urban.org/sites/default/files/publication/101635/comparing_colleges_graduation_rates_0.pdf
 
 
+
 ```{r modelling}
-grad_exp_lm_full <- linear_reg() |> set_engine("lm")
-grad_exp_formula <- grad_rate ~ instr_exp_per_student * public_private 
+lm_spec <- linear_reg() |> set_engine("lm")
 
-grad_ratio_lm_full <- linear_reg() |> set_engine("lm")
-grad_ratio_formula <- grad_rate ~ student_faculty_ratio * public_private 
-
-grad_exp_fit_full <- workflow() |>
-  add_model(grad_exp_lm_full) |>
-  add_formula(grad_exp_formula) |>
-  fit(data = uni_train)
-
-grad_ratio_fit_full <- workflow() |>
-  add_model(grad_ratio_lm_full) |>
-  add_formula(grad_ratio_formula) |>
-  fit(data = uni_train)
-
-grad_exp_no_cont <- workflow() |>
-  add_model(grad_exp_lm_full) |>
-  add_formula(grad_rate ~ public_private) |>
-  fit(data = uni_train)
-
-grad_exp_no_int <- workflow() |>
-  add_model(grad_exp_lm_full) |>
-  add_formula(grad_rate ~ instr_exp_per_student + public_private) |>
-  fit(data = uni_train)
-
-grad_ratio_no_cont <- workflow() |>
-  add_model(grad_ratio_lm_full) |>
-  add_formula(grad_rate ~ public_private) |>
-  fit(data = uni_train)
-
-grad_ratio_no_int <- workflow() |>
-  add_model(grad_ratio_lm_full) |>
-  add_formula(grad_rate ~ student_faculty_ratio + public_private) |>
-  fit(data = uni_train)
+formulas_to_test <- list(
+  Grad_Exp_Full = grad_rate ~ instr_exp_per_student * public_private,
+  Grad_Exp_No_Int = grad_rate ~ instr_exp_per_student + public_private,
+  Grad_Exp_No_Cont = grad_rate ~ public_private,
+  
+  Grad_Ratio_Full = grad_rate ~ student_faculty_ratio * public_private,
+  Grad_Ratio_No_Int = grad_rate ~ student_faculty_ratio + public_private,
+  Grad_Ratio_No_Cont = grad_rate ~ public_private
+)
 
 calculate_rmse <- function(fit, data) {
   preds <- predict(fit, new_data = data) |> 
@@ -265,26 +247,36 @@ calculate_rmse <- function(fit, data) {
   return(rmse_value)
 }
 
-rmse_full_exp <- calculate_rmse(grad_exp_fit_full, uni_val) 
-rmse_no_cont_exp <- calculate_rmse(grad_exp_no_cont, uni_val) 
-rmse_no_int_exp <- calculate_rmse(grad_exp_no_int, uni_val) 
+fit_and_validate <- function(formula, spec, data) {
+  wf <- workflow() |>
+    add_model(spec) |>
+    add_formula(formula)
+  
+  fit <- wf |> fit(data = data)
+  
+  list(fit = fit, rmse = calculate_rmse(fit, uni_val))
+}
 
-rmse_full_ratio <- calculate_rmse(grad_ratio_fit_full, uni_val)
-rmse_no_cont_ratio <- calculate_rmse(grad_ratio_no_cont, uni_val) 
-rmse_no_int_ratio <- calculate_rmse(grad_ratio_no_int, uni_val) 
+model_results <- purrr::map(formulas_to_test, ~fit_and_validate(.x, lm_spec, uni_train))
 
-rmse_comparison_table <- tibble::tribble(
-  ~Model, ~Model_Type, ~RMSE_Validation, 
-  "Grad_Exp_Full", "Full Model", rmse_full_exp,
-  "Grad_Exp_No_Instr_Exp", "No Continuous Feature", rmse_no_cont_exp,
-  "Grad_Exp_No_Interaction", "No Interaction Term", rmse_no_int_exp,
-  "Grad_Ratio_Full", "Full Model", rmse_full_ratio,
-  "Grad_Ratio_No_Stu_Fac_Ratio", "No Continuous Feature", rmse_no_cont_ratio,
-  "Grad_Ratio_No_Interaction", "No Interaction Term", rmse_no_int_ratio
+grad_exp_fit_full <- model_results$Grad_Exp_Full$fit
+grad_ratio_fit_full <- model_results$Grad_Ratio_Full$fit
+
+rmse_comparison_table <- tibble(
+  Model = names(model_results),
+  RMSE_Validation = purrr::map_dbl(model_results, "rmse")
 ) |>
-  mutate(Model_Family = if_else(str_detect(Model, "Exp"), "Model 1: Expense", "Model 2: Ratio"))
+  mutate(
+    Model_Family = if_else(stringr::str_detect(Model, "Exp"), "Model 1: Expense", "Model 2: Ratio"),
+    Model_Type = case_when(
+      stringr::str_detect(Model, "Full") ~ "Full Model",
+      stringr::str_detect(Model, "No_Cont") ~ "No Continuous Feature",
+      stringr::str_detect(Model, "No_Int") ~ "No Interaction Term",
+      .default = "Error"
+    )
+  )
 
-kable(rmse_comparison_table)
+kable(rmse_comparison_table) 
 
 ggplot(rmse_comparison_table) +
   geom_col(aes(x = Model, y = RMSE_Validation, fill = Model_Family), show.legend = FALSE) +
@@ -462,7 +454,7 @@ final_results <- final_results |>
   pivot_wider(names_from = .metric, values_from = .estimate) |>
   separate_wider_delim(model_name, "_", names = c("recipe", "model"))
 
-print(final_results)
+kable(final_results)
 
 ggplot(final_results) +
   geom_col(aes(x=model, y=accuracy, fill=model)) +
