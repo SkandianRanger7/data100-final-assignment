@@ -6,6 +6,9 @@ output:
   bookdown::pdf_document2:
     toc: false
     number_sections: false
+editor_options: 
+  markdown: 
+    wrap: sentence
 ---
 
 ```{r setup, include=FALSE}
@@ -24,21 +27,35 @@ library(patchwork)
 library(knitr)
 ```
 
-# Introduction
-Graduation outcomes differ greatly between public and private universities. National NCES data on six-year following graduation rates indicated that students at private four-year institutions graduate at slightly higher rates on average than those at public four-year colleges, a gap that other analyses attribute partly to differences in selectivity, resources, and student support services. For example, federal statistics report six-year graduation rates in the high 65-69 percent range at private compared with to a low 60-65 percent range at public institutions, while Urban Institute work using state-level samples finds that some private colleges within a state exceed 90 percent completion versus many public campuses clustered closer to 50 percent. Together, these patterns suggest that the same structural features that drive higher tuition at private universities may also be linked to stronger completion outcomes, even as considerable variation exists within each sector.
-Sources:
-https://nces.ed.gov/fastfacts/display.asp?id=40#:~:text=63%20percent%20at%20public%20institutions%2C%2068%20percent%20at%20private%20nonprofit 
-https://www.bestcolleges.com/research/college-graduation-rates/
+### Introduction
 
-The structure of state higher-education systems further shapes how these patterns appear across the country. Nationwide tallies of Title IV institutions show that public universities make up less than one-third of all colleges, while private nonprofit and for-profit institutions together account for the majority, meaning that in many states most campuses are privately controlled even when public systems enroll more students. States with especially large higher-education sectors such as; New York, California, Texas, and Pennsylvania, tends to possess both a high number of institutions and a substantial share that are private, when looking at New York in particular, combining a dense network of private colleges with a sizable public system. As a result, plots relating the number of universities in each state to the proportion that are private often show an upward trend, with states that have more campuses overall also displaying a higher degree of privatization, though this relationship can vary and should be interpreted as descriptive rather than definitive evidence of a national rule.
-Sources:https://nces.ed.gov/fastfacts/display.asp?id=1122
-https://www.worldatlas.com/articles/which-state-has-the-most-colleges.html https://www.appily.com/colleges/state
+Graduation outcomes differ greatly between public and private universities.
+National NCES data on six-year following graduation rates indicated that students at private four-year institutions graduate at slightly higher rates on average than those at public four-year colleges, a gap that other analyses attribute partly to differences in selectivity, resources, and student support services.
+For example, federal statistics report six-year graduation rates in the high 65-69 percent range at private compared with to a low 60-65 percent range at public institutions, while Urban Institute work using state-level samples finds that some private colleges within a state exceed 90 percent completion versus many public campuses clustered closer to 50 percent.
+Together, these patterns suggest that the same structural features that drive higher tuition at private universities may also be linked to stronger completion outcomes, even as considerable variation exists within each sector.
+Sources: <https://nces.ed.gov/fastfacts/display.asp?id=40#>:\~:text=63%20percent%20at%20public%20institutions%2C%2068%20percent%20at%20private%20nonprofit <https://www.bestcolleges.com/research/college-graduation-rates/>
 
-# Research Question
-What differentiates graduation rates for public and private colleges in the US? Additionally, can the type of college be judged without direct metrics like government funding or even tuition price? In answering these questions we also aim to explore the quantifiable differences in education quality between public and private institutions.
+The structure of state higher-education systems further shapes how these patterns appear across the country.
+Nationwide tallies of Title IV institutions show that public universities make up less than one-third of all colleges, while private nonprofit and for-profit institutions together account for the majority, meaning that in many states most campuses are privately controlled even when public systems enroll more students.
+States with especially large higher-education sectors such as; New York, California, Texas, and Pennsylvania, tends to possess both a high number of institutions and a substantial share that are private, when looking at New York in particular, combining a dense network of private colleges with a sizable public system.
+As a result, plots relating the number of universities in each state to the proportion that are private often show an upward trend, with states that have more campuses overall also displaying a higher degree of privatization, though this relationship can vary and should be interpreted as descriptive rather than definitive evidence of a national rule.
+Sources:<https://nces.ed.gov/fastfacts/display.asp?id=1122> <https://www.worldatlas.com/articles/which-state-has-the-most-colleges.html> <https://www.appily.com/colleges/state>
 
-# Tidying
-The tidying process involved reading two datasets: one on faculty compensation (AAUP) and one on college demographics and admissions (US News). Missing values (denoted by *) were converted to "NA" in both datasets. In the faculty compensation data, several columns representing averages and counts were multiplied by 100 to represent their real value. The US News data was improved by converting the numeric public/private code into descriptive categorical labels ("public" and "private"). Additionally, two new features were added by calculating the IQR for both SAT Math and SAT Verbal scores, which measures the spread of scores for admitted students. The data was then reformatted in two ways: first to create a summary table by grouping institutions by their public/private status and calculating mean tuition, graduation rate, and SAT scores. Second, to reshape the data from a wide format to a long format by consolidating all standardized test score variables (averages, Q1s, Q3s) into three descriptive columns (stat, test, and section) alongside a single score column.
+### Research Question
+
+What differentiates graduation rates for public and private colleges in the US?
+Additionally, can the type of college be judged without direct metrics like government funding or even tuition price?
+In answering these questions we also aim to explore the quantifiable differences in education quality between public and private institutions.
+
+### Tidying
+
+The tidying process involved reading two datasets: one on faculty compensation (AAUP) and one on college demographics and admissions (US News).
+Missing values (denoted by \*) were converted to "NA" in both datasets.
+In the faculty compensation data, several columns representing averages and counts were multiplied by 100 to represent their real value.
+The US News data was improved by converting the numeric public/private code into descriptive categorical labels ("public" and "private").
+Additionally, two new features were added by calculating the IQR for both SAT Math and SAT Verbal scores, which measures the spread of scores for admitted students.
+The data was then reformatted in two ways: first to create a summary table by grouping institutions by their public/private status and calculating mean tuition, graduation rate, and SAT scores.
+Second, to reshape the data from a wide format to a long format by consolidating all standardized test score variables (averages, Q1s, Q3s) into three descriptive columns (stat, test, and section) alongside a single score column.
 
 ```{r tidying}
 aaup_url = "https://lib.stat.cmu.edu/datasets/colleges/aaup.data"
@@ -71,8 +88,8 @@ sat_long <- usnews |>
   select(fed_id, college_name, state, stat, test, section, score)
 ```
 
+### Exploratory Plots
 
-# Exploratory Plots
 ```{r, fig.height=4}
 iqr_long <- usnews |> select(public_private, sat_math_iqr, sat_verbal_iqr) |>
   pivot_longer(cols = ends_with("iqr"), names_to = "SAT_Section_IQR", values_to = "IQR_Value") |>
@@ -99,10 +116,16 @@ usnews |> select(public_private, tuition_instate, tuition_outstate) |>
     caption = "Private instututions charge far higher tuition, and out-of-state tuition exceeds in-state across both types.") + 
   theme_bw()
 ```
-Across both tests the IQR is quite similar between public and private institutions. However, the math spread is slightly wider. Private schools tend to have more upward outliers suggesting that they catch many of the highest achieving students.
 
-Public universities offer significantly lower in-state tuition due to state subsidies, while out of state students face generally higher charges. Private universities do not differentiate based on residency status, display substantially higher tuition overall with greater variation. This pattern aligns with national tuition statistic from the U.S. Department of Education, which shows that private institutions charge substantially higher tuition and that out-of-state students at public universities pay considerably higher than in-state students.
-Source: https://nces.ed.gov/programs/digest/d23/tables/dt23_330.10.asp
+Across both tests the IQR is quite similar between public and private institutions.
+However, the math spread is slightly wider.
+Private schools tend to have more upward outliers suggesting that they catch many of the highest achieving students.
+
+Public universities offer significantly lower in-state tuition due to state subsidies, while out of state students face generally higher charges.
+Private universities do not differentiate based on residency status, display substantially higher tuition overall with greater variation.
+This pattern aligns with national tuition statistic from the U.S.
+Department of Education, which shows that private institutions charge substantially higher tuition and that out-of-state students at public universities pay considerably higher than in-state students.
+Source: <https://nces.ed.gov/programs/digest/d23/tables/dt23_330.10.asp>
 
 ```{r}
 aaup_salary_long <- aaup |> mutate(type = factor(type)) |>
@@ -127,10 +150,14 @@ ggplot(salary_summary) +
     caption = "Across AAUP institution types, average faculty salaries consistently rise with rank.") + 
   theme_bw()
 ```
-These four bar plots compare average faculty salaries across AAUP institutional categories (I, IA, IIB, VIIB), showing that salaries consistently decline as institutions move from doctoral -granting, to two-year colleges. Faculty at Type I institutions earn the highest salaries across all ranks, reflecting the greater research intensity, funding capacity, and competitive hiring environment typical of doctoral universities. This aligns with AAUP's institutional classification system, which defines Type I institutions as research-intensive universities and Type IIB/VIIB institutions as primarily undergraduate or two year colleges with fewer graduate programs and lower average compensation structures.
-Source: https://www.aaup.org/explanation-statistical-data-5
 
-# Modelling Plots
+These four bar plots compare average faculty salaries across AAUP institutional categories (I, IA, IIB, VIIB), showing that salaries consistently decline as institutions move from doctoral -granting, to two-year colleges.
+Faculty at Type I institutions earn the highest salaries across all ranks, reflecting the greater research intensity, funding capacity, and competitive hiring environment typical of doctoral universities.
+This aligns with AAUP's institutional classification system, which defines Type I institutions as research-intensive universities and Type IIB/VIIB institutions as primarily undergraduate or two year colleges with fewer graduate programs and lower average compensation structures.
+Source: <https://www.aaup.org/explanation-statistical-data-5>
+
+### Modelling Plots
+
 ```{r, fig.height=3}
 usnews |> mutate(state = fct_lump(state, 4)) |>
   ggplot() +
@@ -164,12 +191,15 @@ usnews |> select(public_private, grad_rate, tuition_instate, tuition_outstate) |
     caption = "Private institutions generally charge higher tuition but also show a wider range of graduation outcomes.") +
   theme_bw()
 ```
-The above scatter plot shows that despite private schools almost always charging higher tuition, graduation outcomes are still mixed. This indicates that public or private status alone is a weak indicator of graduation rate, but are still important to consider since graduation rates only reach their true peaks at private schools.
 
-Private institutions consistently show higher median graduation rates than public universities within the same states, reflecting differences in selectivity, student support, and available resources. Findings from Urban Institute also show that private four-year colleges report substantially higher graduation rates than public four-year colleges withing the same state.
-Source: https://www.urban.org/sites/default/files/publication/101635/comparing_colleges_graduation_rates_0.pdf
+The above scatter plot shows that despite private schools almost always charging higher tuition, graduation outcomes are still mixed.
+This indicates that public or private status alone is a weak indicator of graduation rate, but are still important to consider since graduation rates only reach their true peaks at private schools.
 
-```{r modelling}
+Private institutions consistently show higher median graduation rates than public universities within the same states, reflecting differences in selectivity, student support, and available resources.
+Findings from Urban Institute also show that private four-year colleges report substantially higher graduation rates than public four-year colleges withing the same state.
+Source: <https://www.urban.org/sites/default/files/publication/101635/comparing_colleges_graduation_rates_0.pdf>
+### Linear Modelling
+```{r modelling, fig.height=3.5}
 lm_spec <- linear_reg() |> set_engine("lm")
 formulas_to_test <- list(
   Grad_Exp_Full = grad_rate ~ instr_exp_per_student * public_private,
@@ -219,9 +249,11 @@ ggplot(rmse_comparison_table) +
   ) +
   theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-Two sets of features were used to project the graduation rate: the student to faculty ratio and the instructional expenditure per student. Both of these features were combined with the private/public classification. These two metrics were chosen because they represent the amount of support given to the studend and thus the advantage the school provides to students who might otherwise struggle to graduate.
 
-
+Two sets of features were used to project the graduation rate: the student to faculty ratio and the instructional expenditure per student.
+Both of these features were combined with the private/public classification.
+These two metrics were chosen because they represent the amount of support given to the studend and thus the advantage the school provides to students who might otherwise struggle to graduate.
+### Advanced Modelling
 ```{r advanced_modelling, results = 'hide'}
 xgb_tune_spec <- boost_tree(
   trees = tune(),
@@ -269,11 +301,7 @@ costless_recipe <- recipe(public_private ~ ., data = uni_train) |>
   step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
   step_impute_median(all_numeric_predictors()) |>
   step_normalize(all_numeric_predictors())
-apps_recipe <- recipe(public_private ~ num_apps_received + num_new_enrolled + pct_top10_hs, data = uni_train) |>
-  step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
-  step_impute_median(all_numeric_predictors()) |>
-  step_normalize(all_numeric_predictors())
-workflows <- workflow_set(preproc = list(full = full_recipe, costless = costless_recipe, apps = apps_recipe), 
+workflows <- workflow_set(preproc = list(full = full_recipe, costless = costless_recipe), 
                              models = list(xgb = xgb_tune_spec, rf = rf_tune_spec))
 tic()
 bayes_results = list()
@@ -309,7 +337,7 @@ for (mod_name in names(bayes_results)){
     fit(data = uni_train)}
 ```
 
-```{r}
+```{r, fig.height=2}
 final_results <- map_dfr(
   final_fits, 
   .f = function(model_fit) {
@@ -331,4 +359,11 @@ ggplot(final_results) +
   geom_col(aes(x=model, y=accuracy, fill=model)) +
   facet_wrap(~recipe)
 ```
-This more advanced model relates to the second goal of the study, attempting to predict whether a school is public or private. Since it is a classification model, it cannot be compared to a linear one. Instead, it is compared to a random forest model that can manage the same metric.
+
+This more advanced model relates to the second goal of the study, attempting to predict whether a school is public or private. Since it is a classification model, it cannot be compared to a linear one. Instead, it is compared to a random forest model that can manage the same metric. Two sets of features were modelled: all available in the dataset and all but costs. The intention behind this was to see if schools could still be accurately classified when ignoring the most glaring difference in tuition price. Although some accuracy was lost, about 90% were still classified correctly without costs.
+### Conclusions and Limitations
+The analysis provides strong evidence that a college's financial and academic resources are quantifiable differentiators of graduation outcomes. Models utilizing both instructional expenditure per student and the student-faculty ratio were successful, indicating that investment in student support and faculty accessibility plays a key role. Ultimately, the best predictive models move beyond basic tuition and institution type to capture the differences in resource allocation that directly affect student success.
+
+While the exploratory linear and advanced models identified key predictors that differentiate graduation rates for colleges, the analysis faces significant limitations due to the age of the data. All institutional and admissions data are from a period shortly before the year 2000, which means the findings may not accurately reflect the current landscape of U.S. higher education.
+
+Furthermore, the linear models are limited in their ability to capture non-linear relationships or complex interactions among features like test scores and enrollment demographics. While the advanced models (XGBoost/Random Forest) mitigate this by modeling non-linearity, they operate as "black boxes," which makes drawing intuitive conclusions about the specific mechanisms driving graduation rates more challenging compared to interpreting the coefficients of a linear regression.
