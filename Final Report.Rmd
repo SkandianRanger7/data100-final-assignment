@@ -35,7 +35,7 @@ Together, these patterns suggest that the same structural features that drive hi
 Sources: <https://nces.ed.gov/fastfacts/display.asp?id=40#> <https://www.bestcolleges.com/research/college-graduation-rates/>
 
 Nationwide tallies of institutions show that public universities make up less than one-third of all colleges, while private nonprofit and for-profit institutions together account for the majority, meaning that most campuses are privately controlled even when public systems enroll more students.
-States with especially large higher-education sectors such as; New York, California, Texas, and Pennsylvania, tends to possess both a high number of institutions that are private, when looking at New York in particular, combining a dense network of private colleges with a sizable public system.
+States with especially large higher-education sectors such as; New York, California, Texas, and Pennsylvania, tends to possess both a high number of institutions that are private, combining a dense network of private colleges with a sizable public system.
 As a result, plots relating the number of universities in each state to the proportion that are private often show an upward trend, with states that have more campuses overall also displaying a higher degree of privatization, though this relationship can vary and is not definitive evidence of a national rule.
 Sources:<https://nces.ed.gov/fastfacts/display.asp?id=1122> <https://www.worldatlas.com/articles/which-state-has-the-most-colleges.html> <https://www.appily.com/colleges/state>
 
@@ -50,7 +50,7 @@ In answering these questions we also aim to explore the quantifiable differences
 The tidying process involved reading two datasets: one on faculty compensation (AAUP) and one on college demographics and admissions (US News).
 Missing values (denoted by \*) were converted to "NA" in both datasets.
 In the faculty compensation data, several columns representing averages and counts were multiplied by 100 to represent their real value.
-The US News data was improved by converting the numeric public/private code into descriptive categorical labels ("public" and "private").
+The US News data was improved by converting the numeric public/private code into categorical labels.
 Additionally, two new features were added by calculating the IQR for both SAT Math and SAT Verbal scores, which measures the spread of scores for admitted students.
 The data was then reformatted in two ways: first to create a summary table by grouping institutions by their public/private status and calculating mean tuition, graduation rate, and SAT scores.
 Second, to reshape the data from a wide format to a long format by consolidating all standardized test score variables (averages, Q1s, Q3s) into three descriptive columns (stat, test, and section) alongside a single score column.
@@ -117,18 +117,13 @@ This pattern aligns with national tuition statistic from the U.S.
 Department of Education, which shows that private institutions charge substantially higher tuition and that out-of-state students at public universities pay considerably higher than in-state students.
 Source: <https://nces.ed.gov/programs/digest/d23/tables/dt23_330.10.asp>
 
-```{r}
+```{r, fig.height=4}
 aaup_salary_long <- aaup |> mutate(type = factor(type)) |>
-  select(type, starts_with("avg_sal_")) |> pivot_longer(
-    cols = starts_with("avg_sal_"),
-    names_to = "rank",
-    names_pattern = "avg_sal_(.*)",
-    values_to = "avg_salary") |>
-  mutate(rank = factor(rank,
-      levels = c("assistant", "associate", "full", "all"), 
+  select(type, starts_with("avg_sal_")) |> pivot_longer(cols = starts_with("avg_sal_"),
+    names_to = "rank",names_pattern = "avg_sal_(.*)",values_to = "avg_salary") |>
+  mutate(rank = factor(rank,levels = c("assistant", "associate", "full", "all"), 
       labels = c("Assistant", "Associate", "Full", "All ranks")))
-salary_summary <- aaup_salary_long |>
-  group_by(type, rank) |>
+salary_summary <- aaup_salary_long |> group_by(type, rank) |>
   summarise(mean_salary = mean(avg_salary, na.rm = TRUE) / 100,.groups = "drop")
 ggplot(salary_summary) +
   geom_col(aes(x = rank, y = mean_salary, fill = rank)) + facet_wrap(~type) +
@@ -139,9 +134,9 @@ ggplot(salary_summary) +
   theme_bw()
 ```
 
-These four bar plots compare average faculty salaries across AAUP institutional categories (I, IA, IIB, VIIB), showing that salaries consistently decline as institutions move from doctoral -granting, to two-year colleges.
-Faculty at Type I institutions earn the highest salaries across all ranks, reflecting the greater research intensity, funding capacity, and competitive hiring environment typical of doctoral universities.
-This aligns with AAUP's institutional classification system, which defines Type I institutions as research-intensive universities and Type IIB/VIIB institutions as primarily undergraduate or two year colleges with fewer graduate programs and lower average compensation structures.
+These plots compare faculty salaries across AAUP institutional categories (I, IA, IIB, VIIB), showing that salaries consistently decline as institutions move from doctoral-granting to two-year colleges.
+Faculty at Type I institutions earn the highest salaries across all ranks.
+This aligns with AAUP's institutional classification system, which defines Type I institutions as research-intensive universities and Type IIB/VIIB institutions as primarily undergraduate with fewer graduate programs and lower average compensation.
 Source: <https://www.aaup.org/explanation-statistical-data-5>
 
 ### Modelling Plots
@@ -165,8 +160,7 @@ Source: <https://www.urban.org/sites/default/files/publication/101635/comparing_
 ```{r, fig.height=3}
 usnews |> select(public_private, grad_rate, tuition_instate, tuition_outstate) |>
   pivot_longer(cols = c(tuition_instate, tuition_outstate), names_to = "tuition_type",
-    values_to = "tuition") |>
-  ggplot(aes(x = tuition, y = grad_rate, color = public_private)) +
+    values_to = "tuition") |> ggplot(aes(x = tuition, y = grad_rate, color = public_private)) +
   geom_point(alpha = 0.6) + geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
   facet_wrap(~ tuition_type, scales = "free_x") +
   labs(title = "Graduation Rate vs. Tuition Cost by Institution Type",
@@ -300,8 +294,7 @@ final_results <- final_results |>
   pivot_wider(names_from = .metric, values_from = .estimate) |>
   separate_wider_delim(model_name, "_", names = c("recipe", "model"))
 kable(final_results)
-ggplot(final_results) +
-  geom_col(aes(x=model, y=accuracy, fill=model)) + facet_wrap(~recipe)
+ggplot(final_results) + geom_col(aes(x=model, y=accuracy, fill=model)) + facet_wrap(~recipe)
 ```
 
 This more advanced XGBoost model relates to the second goal of the study, attempting to predict whether a school is public or private.
