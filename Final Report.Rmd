@@ -1,6 +1,5 @@
 ---
 title: "Predicting University Graduation Outcomes: An Analysis of Institutional Type, Resources, and Tuition"
-author: "Spencer Robinson, Thomas Sefton, and Paolo Spadano"
 output: 
   bookdown::pdf_document2:
     toc: false
@@ -32,12 +31,10 @@ Graduation outcomes differ greatly between public and private universities.
 National NCES data on six-year following graduation rates indicated that students at private four-year institutions graduate at slightly higher rates on average than those at public four-year colleges, a gap that other analyses attribute partly to differences in selectivity, resources, and student support services.
 For example, federal statistics report six-year graduation rates in the high 65-69% range at private compared with to a low 60-65% range at public institutions, while Urban Institute work using state-level samples finds that some private colleges within a state exceed 90% completion versus many public campuses clustered closer to 50%.
 Together, these patterns suggest that the same structural features that drive higher tuition at private universities may also be linked to stronger outcomes, even as considerable variation exists.
-Sources: <https://nces.ed.gov/fastfacts/display.asp?id=40#> <https://www.bestcolleges.com/research/college-graduation-rates/>
-
 Nationwide tallies of institutions show that public universities make up less than one-third of all colleges, while private nonprofit and for-profit institutions together account for the majority, meaning that most campuses are privately controlled even when public systems enroll more students.
 States with especially large higher-education sectors such as; New York, California, Texas, and Pennsylvania, tends to possess both a high number of institutions that are private, combining a dense network of private colleges with a sizable public system.
 As a result, plots relating the number of universities in each state to the proportion that are private often show an upward trend, with states that have more campuses overall also displaying a higher degree of privatization, though this relationship can vary and is not definitive evidence of a national rule.
-Sources:<https://nces.ed.gov/fastfacts/display.asp?id=1122> <https://www.worldatlas.com/articles/which-state-has-the-most-colleges.html> <https://www.appily.com/colleges/state>
+Sources:<https://nces.ed.gov/fastfacts/display.asp?id=1122> <https://www.worldatlas.com/articles/which-state-has-the-most-colleges.html> <https://www.appily.com/colleges/state> <https://nces.ed.gov/fastfacts/display.asp?id=40#> <https://www.bestcolleges.com/research/college-graduation-rates/>
 
 ### Research Question
 
@@ -185,8 +182,7 @@ formulas_to_test <- list(
   Grad_Ratio_No_Int = grad_rate ~ student_faculty_ratio + public_private,
   Grad_Ratio_No_Cont = grad_rate ~ public_private)
 calculate_rmse <- function(fit, data) {
-  preds <- predict(fit, new_data = data) |> 
-    bind_cols(data |> select(grad_rate))
+  preds <- predict(fit, new_data = data) |> bind_cols(data |> select(grad_rate))
   rmse_value <- preds |> rmse(truth = grad_rate, estimate = .pred) |>
     select(.estimate) |> pull()
   return(rmse_value)}
@@ -208,8 +204,7 @@ rmse_comparison_table <- tibble(
 kable(rmse_comparison_table) 
 ggplot(rmse_comparison_table) +
   geom_col(aes(x = Model, y = RMSE_Validation, fill = Model_Family), show.legend = FALSE) +
-  geom_text(aes(x = Model, y = RMSE_Validation, label = round(RMSE_Validation, 2)), 
-            vjust = 1) +
+  geom_text(aes(x = Model, y = RMSE_Validation, label = round(RMSE_Validation, 2)), vjust = 1) +
   facet_wrap(~ Model_Family, scales = "free_x") + labs(
     title = "Validation RMSE Comparison Across Linear Model Variations",
     subtitle = "RMSE calculated on the held-out validation set",
@@ -237,18 +232,13 @@ cl <- makePSOCKcluster(detectCores() - 4)
 registerDoParallel(cl)
 print("Parallel processing enabled")
 full_recipe <- recipe(public_private ~ ., data = uni_train) |>
-  update_role(
-    c(fed_id, college_name), 
-    new_role = "ID") |>
-  step_novel(state) |>
+  update_role(c(fed_id, college_name), new_role = "ID") |> step_novel(state) |>
   step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
   step_impute_median(all_numeric_predictors()) |>
   step_normalize(all_numeric_predictors())
 costless_recipe <- recipe(public_private ~ ., data = uni_train) |>
   update_role(
-    c(fed_id, college_name, tuition_instate, tuition_outstate, room_board_cost, room_cost, board_cost, fees_additional, books_estimated, personal_spending_est, instr_exp_per_student), 
-    new_role = "ID") |>
-  step_novel(state) |>
+    c(fed_id, college_name, tuition_instate, tuition_outstate, room_board_cost, room_cost, board_cost, fees_additional, books_estimated, personal_spending_est, instr_exp_per_student), new_role = "ID") |> step_novel(state) |>
   step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
   step_impute_median(all_numeric_predictors()) |>
   step_normalize(all_numeric_predictors())
@@ -257,8 +247,7 @@ workflows <- workflow_set(preproc = list(full = full_recipe, costless = costless
 tic()
 bayes_results = list()
 map(workflows$wflow_id, function(id) {
-  current_workflow <- workflows |>
-        extract_workflow(id = id)
+  current_workflow <- workflows |> extract_workflow(id = id)
   current_metrics = metric_set(roc_auc, accuracy)
   if (str_detect(id, "rf")) {current_params <- rf_params} else {
     current_params <- xgb_params}
@@ -283,12 +272,9 @@ final_results <- map_dfr(
     test_predictions <- predict(model_fit, new_data = uni_test, type = "prob") |>
      bind_cols(uni_test |> select(public_private))
     class_predictions <- predict(model_fit, new_data = uni_test, type = "class")
-    test_predictions <- test_predictions |>
-      bind_cols(class_predictions)
-    roc_auc_result <- test_predictions |>
-      roc_auc(truth = public_private,.pred_public)
-    accuracy_result <- test_predictions |>
-      accuracy(truth = public_private,estimate = .pred_class )
+    test_predictions <- test_predictions |> bind_cols(class_predictions)
+    roc_auc_result <- test_predictions |> roc_auc(truth = public_private,.pred_public)
+    accuracy_result <- test_predictions |> accuracy(truth = public_private,estimate = .pred_class )
     bind_rows(roc_auc_result, accuracy_result)},.id = "model_name" )
 final_results <- final_results |> 
   pivot_wider(names_from = .metric, values_from = .estimate) |>
@@ -309,9 +295,7 @@ Although some accuracy was lost, about 90% were still classified correctly witho
 The analysis provides strong evidence that a college's financial and academic resources are quantifiable differentiators of graduation outcomes.
 Models utilizing both instructional expenditure per student and the student-faculty ratio were successful, indicating that investment in student support and faculty accessibility plays a key role.
 Ultimately, the best predictive models move beyond basic tuition and institution type to capture the differences in resource allocation that directly affect student success.
-
 While the exploratory linear and advanced models identified key predictors that differentiate graduation rates for colleges, the analysis faces significant limitations due to the age of the data.
 All institutional and admissions data are from a period shortly before the year 2000, which means the findings may not accurately reflect the current landscape of U.S. higher education.
-
 Furthermore, the linear models are limited in their ability to capture non-linear relationships or complex interactions among features like test scores and enrollment demographics.
 While the advanced models (XGBoost/Random Forest) mitigate this by modeling non-linearity, they operate as "black boxes," which makes drawing intuitive conclusions about the specific mechanisms driving graduation rates more challenging compared to interpreting the coefficients of a linear regression.
