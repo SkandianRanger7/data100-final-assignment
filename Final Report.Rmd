@@ -34,10 +34,9 @@ For example, federal statistics report six-year graduation rates in the high 65-
 Together, these patterns suggest that the same structural features that drive higher tuition at private universities may also be linked to stronger outcomes, even as considerable variation exists.
 Sources: <https://nces.ed.gov/fastfacts/display.asp?id=40#> <https://www.bestcolleges.com/research/college-graduation-rates/>
 
-The structure of state higher-education systems further shapes how these patterns appear across the country.
-Nationwide tallies of Title IV institutions show that public universities make up less than one-third of all colleges, while private nonprofit and for-profit institutions together account for the majority, meaning that in many states most campuses are privately controlled even when public systems enroll more students.
-States with especially large higher-education sectors such as; New York, California, Texas, and Pennsylvania, tends to possess both a high number of institutions and a substantial share that are private, when looking at New York in particular, combining a dense network of private colleges with a sizable public system.
-As a result, plots relating the number of universities in each state to the proportion that are private often show an upward trend, with states that have more campuses overall also displaying a higher degree of privatization, though this relationship can vary and should be interpreted as descriptive rather than definitive evidence of a national rule.
+Nationwide tallies of institutions show that public universities make up less than one-third of all colleges, while private nonprofit and for-profit institutions together account for the majority, meaning that most campuses are privately controlled even when public systems enroll more students.
+States with especially large higher-education sectors such as; New York, California, Texas, and Pennsylvania, tends to possess both a high number of institutions that are private, when looking at New York in particular, combining a dense network of private colleges with a sizable public system.
+As a result, plots relating the number of universities in each state to the proportion that are private often show an upward trend, with states that have more campuses overall also displaying a higher degree of privatization, though this relationship can vary and is not definitive evidence of a national rule.
 Sources:<https://nces.ed.gov/fastfacts/display.asp?id=1122> <https://www.worldatlas.com/articles/which-state-has-the-most-colleges.html> <https://www.appily.com/colleges/state>
 
 ### Research Question
@@ -133,11 +132,9 @@ salary_summary <- aaup_salary_long |>
   summarise(mean_salary = mean(avg_salary, na.rm = TRUE) / 100,.groups = "drop")
 ggplot(salary_summary) +
   geom_col(aes(x = rank, y = mean_salary, fill = rank)) + facet_wrap(~type) +
-  labs(
-    title = "Average Faculty Salary by Rank and Institution Type",
+  labs(title = "Average Faculty Salary by Rank and Institution Type",
     subtitle = "Faculty at Private Universities Tend to Earn More at Every Rank",
-    x = "Faculty Rank",
-    y = "Average Salary (USD)",
+    x = "Faculty Rank", y = "Average Salary (USD)",
     caption = "Across AAUP institution types, average faculty salaries consistently rise with rank.") + 
   theme_bw()
 ```
@@ -167,19 +164,14 @@ Source: <https://www.urban.org/sites/default/files/publication/101635/comparing_
 
 ```{r, fig.height=3}
 usnews |> select(public_private, grad_rate, tuition_instate, tuition_outstate) |>
-  pivot_longer(
-    cols = c(tuition_instate, tuition_outstate),
-    names_to = "tuition_type",
+  pivot_longer(cols = c(tuition_instate, tuition_outstate), names_to = "tuition_type",
     values_to = "tuition") |>
   ggplot(aes(x = tuition, y = grad_rate, color = public_private)) +
-  geom_point(alpha = 0.6) +
-  geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
+  geom_point(alpha = 0.6) + geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
   facet_wrap(~ tuition_type, scales = "free_x") +
   labs(title = "Graduation Rate vs. Tuition Cost by Institution Type",
     subtitle = "Comparing In-State and Out-of-State Tuition Levels",
-    x = "Tuition Cost (USD)",
-    y = "Graduation Rate (%)",
-    color = "Institution Type",
+    x = "Tuition Cost (USD)", y = "Graduation Rate (%)", color = "Institution Type",
     caption = "Private schools generally charge more tuition but show a wider range of graduation outcomes.") +
   theme_bw()
 ```
@@ -213,14 +205,12 @@ grad_exp_fit_full <- model_results$Grad_Exp_Full$fit
 grad_ratio_fit_full <- model_results$Grad_Ratio_Full$fit
 rmse_comparison_table <- tibble(
   Model = names(model_results),
-  RMSE_Validation = map_dbl(model_results, "rmse")) |>
-  mutate(
+  RMSE_Validation = map_dbl(model_results, "rmse")) |> mutate(
     Model_Family = if_else(str_detect(Model, "Exp"), "Model 1: Expense", "Model 2: Ratio"),
     Model_Type = case_when(
       str_detect(Model, "Full") ~ "Full Model",
       str_detect(Model, "No_Cont") ~ "No Continuous Feature",
-      str_detect(Model, "No_Int") ~ "No Interaction Term",
-      .default = "Error"))
+      str_detect(Model, "No_Int") ~ "No Interaction Term", .default = "Error"))
 kable(rmse_comparison_table) 
 ggplot(rmse_comparison_table) +
   geom_col(aes(x = Model, y = RMSE_Validation, fill = Model_Family), show.legend = FALSE) +
@@ -236,6 +226,7 @@ ggplot(rmse_comparison_table) +
 Two sets of features were used to project the graduation rate: the student to faculty ratio and the instructional expenditure per student.
 Both of these features were combined with the private/public classification.
 These two metrics were chosen because they represent the amount of support given to the studend and thus the advantage the school provides to students who might otherwise struggle to graduate.
+
 ### Advanced Modelling
 
 ```{r advanced_modelling, results = 'hide'}
@@ -313,7 +304,7 @@ ggplot(final_results) +
   geom_col(aes(x=model, y=accuracy, fill=model)) + facet_wrap(~recipe)
 ```
 
-This more advanced model relates to the second goal of the study, attempting to predict whether a school is public or private.
+This more advanced XGBoost model relates to the second goal of the study, attempting to predict whether a school is public or private.
 Since it is a classification model, it cannot be compared to a linear one.
 Instead, it is compared to a random forest model that can manage the same metric.
 Two sets of features were modelled: all available in the dataset and all but costs.
