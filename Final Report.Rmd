@@ -25,10 +25,7 @@ library(knitr)
 ```
 
 # Introduction
-University tuition in the United States shows a sharp contrast between public and private universities. Public institutions typically charge much lower in-state tuition because individual state governments subsidize a portion of post-secondary tuition for residents, while non-resident students at the same campuses have substantially higher sticker prices that more closely reflect the full cost of education. Private for-profit universities generally do not differentiate tuition costs based on students’ state residency but rather a set rate that is much higher on average than both in state and out-of-state prices at public institutions. National figures from the National Center for Education Statistics and College Board show that average tuition at private four-year colleges is roughly three to four times higher than in state tuition at public four-year universities, demonstrating the financial stakes of both institution type. 
-Source: https://www.bestcolleges.com/research/average-cost-of-college/ https://nces.ed.gov/programs/coe/indicator/cua
-
-Graduation outcomes also differ between public and private universities. National NCES data on six-year following graduation rates indicated that students at private four-year institutions graduate at slightly higher rates on average than those at public four-year colleges, a gap that other analyses attribute partly to differences in selectivity, resources, and student support services. For example, federal statistics report six-year graduation rates in the high 65-69 percent range at private compared with to a low 60-65 percent range at public institutions, while Urban Institute work using state-level samples finds that some private colleges within a state exceed 90 percent completion versus many public campuses clustered closer to 50 percent. Together, these patterns suggest that the same structural features that drive higher tuition at private universities may also be linked to stronger completion outcomes, even as considerable variation exists within each sector.
+Graduation outcomes differ greatly between public and private universities. National NCES data on six-year following graduation rates indicated that students at private four-year institutions graduate at slightly higher rates on average than those at public four-year colleges, a gap that other analyses attribute partly to differences in selectivity, resources, and student support services. For example, federal statistics report six-year graduation rates in the high 65-69 percent range at private compared with to a low 60-65 percent range at public institutions, while Urban Institute work using state-level samples finds that some private colleges within a state exceed 90 percent completion versus many public campuses clustered closer to 50 percent. Together, these patterns suggest that the same structural features that drive higher tuition at private universities may also be linked to stronger completion outcomes, even as considerable variation exists within each sector.
 Sources:
 https://nces.ed.gov/fastfacts/display.asp?id=40#:~:text=63%20percent%20at%20public%20institutions%2C%2068%20percent%20at%20private%20nonprofit 
 https://www.bestcolleges.com/research/college-graduation-rates/
@@ -36,8 +33,6 @@ https://www.bestcolleges.com/research/college-graduation-rates/
 The structure of state higher-education systems further shapes how these patterns appear across the country. Nationwide tallies of Title IV institutions show that public universities make up less than one-third of all colleges, while private nonprofit and for-profit institutions together account for the majority, meaning that in many states most campuses are privately controlled even when public systems enroll more students. States with especially large higher-education sectors such as; New York, California, Texas, and Pennsylvania, tends to possess both a high number of institutions and a substantial share that are private, when looking at New York in particular, combining a dense network of private colleges with a sizable public system. As a result, plots relating the number of universities in each state to the proportion that are private often show an upward trend, with states that have more campuses overall also displaying a higher degree of privatization, though this relationship can vary and should be interpreted as descriptive rather than definitive evidence of a national rule.
 Sources:https://nces.ed.gov/fastfacts/display.asp?id=1122
 https://www.worldatlas.com/articles/which-state-has-the-most-colleges.html https://www.appily.com/colleges/state
-
-Faculty compensation patterns mirror the classification of each tier of education achieved, with pay varying not only by rank but also by institution type. National faculty salary surveys show that professors at private, research-intensive universities typically earn more at every rank than their peers at less research-focused or two-year institutions, reflecting differences in revenue streams, endowment size, and competition for talent. 
 
 # Research Question
 What differentiates graduation rates for public and private colleges in the US? Additionally, can the type of college be judged without direct metrics like government funding or even tuition price? In answering these questions we also aim to explore the quantifiable differences in education quality between public and private institutions.
@@ -78,31 +73,20 @@ sat_long <- usnews |>
 
 
 # Exploratory Plots
-```{r}
-iqr_long <- usnews |>
-  select(public_private, sat_math_iqr, sat_verbal_iqr) |>
-  pivot_longer(
-    cols = ends_with("iqr"),
-    names_to = "SAT_Section_IQR",
-    values_to = "IQR_Value"
-  ) |>
+```{r, fig.height=4}
+iqr_long <- usnews |> select(public_private, sat_math_iqr, sat_verbal_iqr) |>
+  pivot_longer(cols = ends_with("iqr"), names_to = "SAT_Section_IQR", values_to = "IQR_Value") |>
   mutate(SAT_Section_IQR = str_remove(SAT_Section_IQR, "sat_"),
          SAT_Section_IQR = str_replace(SAT_Section_IQR, "_iqr", ""))
-exp_plot_1 <- ggplot(iqr_long, aes(x = public_private, y = IQR_Value, fill = SAT_Section_IQR)) +
-  geom_boxplot() +
-  facet_wrap(~ SAT_Section_IQR) + # Separate Math and Verbal IQR distributions
-  labs(
+ggplot(iqr_long, aes(x = public_private, y = IQR_Value, fill = SAT_Section_IQR)) +
+  geom_boxplot() + facet_wrap(~ SAT_Section_IQR) + labs(
     title = "Interquartile Range (IQR) of SAT Scores by Institution Type",
-    x = "Institution Type",
-    y = "Score IQR (Q3 - Q1)",
-    fill = "SAT Section"
-  ) +
-  theme(legend.position = "bottom")
+    x = "Institution Type",y = "Score IQR (Q3 - Q1)",fill = "SAT Section") +
+  theme_bw()
 ```
 
 ```{r plots, fig.height=3}
-exp_plot_2 <- usnews |>
-  select(public_private, tuition_instate, tuition_outstate) |>
+usnews |> select(public_private, tuition_instate, tuition_outstate) |>
   pivot_longer(cols = c(tuition_instate, tuition_outstate), names_to = "instate_outstate", values_to = "tuition") |>
   ggplot() +
     geom_violin(aes(x = public_private, y = tuition, fill = instate_outstate, colour = instate_outstate)) +
@@ -113,41 +97,28 @@ exp_plot_2 <- usnews |>
     y = "Tuition Cost (USD)",
     fill = "Tuition Type",
     caption = "Private instututions charge far higher tuition, and out-of-state tuition exceeds in-state across both types.") + 
-  theme(legend.position = "bottom")
-exp_plot_1 + exp_plot_2
+  theme_bw()
 ```
 Across both tests the IQR is quite similar between public and private institutions. However, the math spread is slightly wider. Private schools tend to have more upward outliers suggesting that they catch many of the highest achieving students.
 
-The distribution of tuition costs shows a clear divide between public and private institutions. Public universities offer significantly lower in-state tuition due to state subsidies, while out of state students face generally higher charges. Private universities do not differentiate based on residency status, display substantially higher tuition overall with greater variation. This pattern aligns with national tuition statistic from the U.S. Department of Education, which shows that private institutions charge substantially higher tuition and that out-of-state students at public universities pay considerably higher than in-state students (NCES, 2024). These differneces in tuition structue highlight the financial contrast between institution types and the importance of residency in determining affordability.
+Public universities offer significantly lower in-state tuition due to state subsidies, while out of state students face generally higher charges. Private universities do not differentiate based on residency status, display substantially higher tuition overall with greater variation. This pattern aligns with national tuition statistic from the U.S. Department of Education, which shows that private institutions charge substantially higher tuition and that out-of-state students at public universities pay considerably higher than in-state students.
 Source: https://nces.ed.gov/programs/digest/d23/tables/dt23_330.10.asp
 
 ```{r}
-aaup_salary_long <- aaup |>
-  mutate(
-    type = factor(type)
-    ) |>
-  select(type, starts_with("avg_sal_")) |>
-  pivot_longer(
+aaup_salary_long <- aaup |> mutate(type = factor(type)) |>
+  select(type, starts_with("avg_sal_")) |> pivot_longer(
     cols = starts_with("avg_sal_"),
     names_to = "rank",
     names_pattern = "avg_sal_(.*)",
-    values_to = "avg_salary"
-  ) |>
-  mutate(
-    rank = factor(
-      rank,
+    values_to = "avg_salary") |>
+  mutate(rank = factor(rank,
       levels = c("assistant", "associate", "full", "all"), 
-      labels = c("Assistant", "Associate", "Full", "All ranks")
-  ))
+      labels = c("Assistant", "Associate", "Full", "All ranks")))
 salary_summary <- aaup_salary_long |>
   group_by(type, rank) |>
-  summarise(
-    mean_salary = mean(avg_salary, na.rm = TRUE) / 100,
-    .groups = "drop"
-  )
+  summarise(mean_salary = mean(avg_salary, na.rm = TRUE) / 100,.groups = "drop")
 ggplot(salary_summary) +
-  geom_col(aes(x = rank, y = mean_salary, fill = rank)) +
-  facet_wrap(~type) +
+  geom_col(aes(x = rank, y = mean_salary, fill = rank)) + facet_wrap(~type) +
   labs(
     title = "Average Faculty Salary by Rank and Institution Type",
     subtitle = "Faculty at Private Universities Tend to Earn More at Every Rank",
@@ -156,17 +127,15 @@ ggplot(salary_summary) +
     caption = "Across AAUP institution types, average faculty salaries consistently rise with rank.") + 
   theme_bw()
 ```
-These four bar plots compare average faculty salaries across AAUP institutional categories (I, IA, IIB, VIIB), showing that salaries consistently decline as institutions move from doctoral -granting, to two-year colleges. Faculty at Type I institutions earn the highest salaries across all ranks, reflecting the greater research intensity, funding capacity, and competitive hiring environment typical of doctoral universities. This aligns with AAUP's institutional classification system, which defines Type I institutions as research-intensive universities and Type IIB/VIIB institutions as primarily undergraduate or two year colleges with fewer graduate programs and lower average compensation structures (AAUP, 2023).
+These four bar plots compare average faculty salaries across AAUP institutional categories (I, IA, IIB, VIIB), showing that salaries consistently decline as institutions move from doctoral -granting, to two-year colleges. Faculty at Type I institutions earn the highest salaries across all ranks, reflecting the greater research intensity, funding capacity, and competitive hiring environment typical of doctoral universities. This aligns with AAUP's institutional classification system, which defines Type I institutions as research-intensive universities and Type IIB/VIIB institutions as primarily undergraduate or two year colleges with fewer graduate programs and lower average compensation structures.
 Source: https://www.aaup.org/explanation-statistical-data-5
 
 # Modelling Plots
 ```{r, fig.height=3}
-usnews |>
-  mutate(state = fct_lump(state, 4)) |>
+usnews |> mutate(state = fct_lump(state, 4)) |>
   ggplot() +
   geom_boxplot(aes(x = reorder(state, grad_rate, FUN=median), y = grad_rate, fill = state)) +
-  facet_wrap(~public_private) +
-  labs(
+  facet_wrap(~public_private) + labs(
     title = "Graduation Rates Across States and Institution Types",
     subtitle = "States Grouped into the Most Frequent Categories - Remaining States Grouped as 'Other'",
     x = "State",
@@ -177,13 +146,11 @@ usnews |>
 ```
 
 ```{r, fig.height=3}
-usnews |>
-  select(public_private, grad_rate, tuition_instate, tuition_outstate) |>
+usnews |> select(public_private, grad_rate, tuition_instate, tuition_outstate) |>
   pivot_longer(
     cols = c(tuition_instate, tuition_outstate),
     names_to = "tuition_type",
-    values_to = "tuition"
-  ) |>
+    values_to = "tuition") |>
   ggplot(aes(x = tuition, y = grad_rate, color = public_private)) +
   geom_point(alpha = 0.6) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
@@ -194,16 +161,13 @@ usnews |>
     x = "Tuition Cost (USD)",
     y = "Graduation Rate (%)",
     color = "Institution Type",
-    caption = "Private institutions generally charge higher tuition but also show a wider range of graduation outcomes."
-  ) +
+    caption = "Private institutions generally charge higher tuition but also show a wider range of graduation outcomes.") +
   theme_bw()
 ```
 The above scatter plot shows that despite private schools almost always charging higher tuition, graduation outcomes are still mixed. This indicates that public or private status alone is a weak indicator of graduation rate, but are still important to consider since graduation rates only reach their true peaks at private schools.
 
-This box and whisker plot compares graduation rates across the most common states in the dataset, seperated by public and private institutions. Private institutions consistently show higher median graduation rates than public universities within the same states, reflecting differences in selectivity student support and available resources. Findings from Urban Institute data, support our plot, showing that private four-year colleges report substantially higher graduation rates than public four-year colleges withing the same state, with private institutions reaching graduation rates above 90% compared to many public schools clustered near 50% (Urban Institute, 2024).
+Private institutions consistently show higher median graduation rates than public universities within the same states, reflecting differences in selectivity, student support, and available resources. Findings from Urban Institute also show that private four-year colleges report substantially higher graduation rates than public four-year colleges withing the same state.
 Source: https://www.urban.org/sites/default/files/publication/101635/comparing_colleges_graduation_rates_0.pdf
-
-
 
 ```{r modelling}
 lm_spec <- linear_reg() |> set_engine("lm")
@@ -213,8 +177,7 @@ formulas_to_test <- list(
   Grad_Exp_No_Cont = grad_rate ~ public_private,
   Grad_Ratio_Full = grad_rate ~ student_faculty_ratio * public_private,
   Grad_Ratio_No_Int = grad_rate ~ student_faculty_ratio + public_private,
-  Grad_Ratio_No_Cont = grad_rate ~ public_private
-)
+  Grad_Ratio_No_Cont = grad_rate ~ public_private)
 calculate_rmse <- function(fit, data) {
   preds <- predict(fit, new_data = data) |> 
     bind_cols(data |> select(grad_rate))
@@ -222,31 +185,26 @@ calculate_rmse <- function(fit, data) {
     rmse(truth = grad_rate, estimate = .pred) |>
     select(.estimate) |>
     pull()
-  return(rmse_value)
-}
+  return(rmse_value)}
 fit_and_validate <- function(formula, spec, data) {
   wf <- workflow() |>
     add_model(spec) |>
     add_formula(formula)
   fit <- wf |> fit(data = data)
-  list(fit = fit, rmse = calculate_rmse(fit, uni_val))
-}
+  list(fit = fit, rmse = calculate_rmse(fit, uni_val))}
 model_results <- purrr::map(formulas_to_test, ~fit_and_validate(.x, lm_spec, uni_train))
 grad_exp_fit_full <- model_results$Grad_Exp_Full$fit
 grad_ratio_fit_full <- model_results$Grad_Ratio_Full$fit
 rmse_comparison_table <- tibble(
   Model = names(model_results),
-  RMSE_Validation = purrr::map_dbl(model_results, "rmse")
-) |>
+  RMSE_Validation = purrr::map_dbl(model_results, "rmse")) |>
   mutate(
     Model_Family = if_else(stringr::str_detect(Model, "Exp"), "Model 1: Expense", "Model 2: Ratio"),
     Model_Type = case_when(
       stringr::str_detect(Model, "Full") ~ "Full Model",
       stringr::str_detect(Model, "No_Cont") ~ "No Continuous Feature",
       stringr::str_detect(Model, "No_Int") ~ "No Interaction Term",
-      .default = "Error"
-    )
-  )
+      .default = "Error"))
 kable(rmse_comparison_table) 
 ggplot(rmse_comparison_table) +
   geom_col(aes(x = Model, y = RMSE_Validation, fill = Model_Family), show.legend = FALSE) +
@@ -255,13 +213,14 @@ ggplot(rmse_comparison_table) +
   facet_wrap(~ Model_Family, scales = "free_x") +
   labs(
     title = "Validation RMSE Comparison Across Linear Model Variations",
-    subtitle = "RMSE calculated on the held-out validation set (uni_val)",
+    subtitle = "RMSE calculated on the held-out validation set",
     x = "Model Specification",
     y = "Validation RMSE (Graduation Rate % Error)"
   ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+Two sets of features were used to project the graduation rate: the student to faculty ratio and the instructional expenditure per student. Both of these features were combined with the private/public classification. These two metrics were chosen because they represent the amount of support given to the studend and thus the advantage the school provides to students who might otherwise struggle to graduate.
+
 
 ```{r advanced_modelling, results = 'hide'}
 xgb_tune_spec <- boost_tree(
@@ -325,8 +284,7 @@ map(workflows$wflow_id, function(id) {
   if (str_detect(id, "rf")) {
     current_params <- rf_params
   } else {
-    current_params <- xgb_params
-  }
+    current_params <- xgb_params}
   bayes_results[[id]] <<- tune_bayes(
     current_workflow,
     resamples = uni_folds,
@@ -336,9 +294,7 @@ map(workflows$wflow_id, function(id) {
     control = control_bayes(
       no_improve = 10,
       save_pred = TRUE,
-      verbose = TRUE
-  ))
-})
+      verbose = TRUE))})
 stopCluster(cl)
 toc()
 final_fits = list()
@@ -350,8 +306,7 @@ for (mod_name in names(bayes_results)){
     extract_workflow(id = mod_name) |>
     finalize_workflow(current_best_params)
   final_fits[[mod_name]] <- final_workflow |>
-    fit(data = uni_train)
-}
+    fit(data = uni_train)}
 ```
 
 ```{r}
@@ -364,19 +319,10 @@ final_results <- map_dfr(
     test_predictions <- test_predictions |>
       bind_cols(class_predictions)
     roc_auc_result <- test_predictions |>
-      roc_auc(
-        truth = public_private,
-        .pred_public
-      )
+      roc_auc(truth = public_private,.pred_public)
     accuracy_result <- test_predictions |>
-      accuracy(
-        truth = public_private,
-        estimate = .pred_class 
-      )
-    bind_rows(roc_auc_result, accuracy_result)
-  },
-  .id = "model_name" 
-)
+      accuracy(truth = public_private,estimate = .pred_class )
+    bind_rows(roc_auc_result, accuracy_result)},.id = "model_name" )
 final_results <- final_results |> 
   pivot_wider(names_from = .metric, values_from = .estimate) |>
   separate_wider_delim(model_name, "_", names = c("recipe", "model"))
