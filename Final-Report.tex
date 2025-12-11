@@ -1,0 +1,860 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Final Report},
+  pdfauthor={Spencer Robinson, Thomas Sefton, and Paolo Spadano},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Final Report}
+\author{Spencer Robinson, Thomas Sefton, and Paolo Spadano}
+\date{2025-12-10}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\section{Introduction}\label{introduction}
+
+University tuition in the United States shows a sharp contrast between public and private universities. Public institutions typically charge much lower in-state tuition because individual state governments subsidize a portion of post-secondary tuition for residents, while non-resident students at the same campuses have substantially higher sticker prices that more closely reflect the full cost of education. Private for-profit universities generally do not differentiate tuition costs based on students' state residency but rather a set rate that is much higher on average than both in state and out-of-state prices at public institutions. National figures from the National Center for Education Statistics and College Board show that average tuition at private four-year colleges is roughly three to four times higher than in state tuition at public four-year universities, demonstrating the financial stakes of both institution type.
+Source: \url{https://www.bestcolleges.com/research/average-cost-of-college/} \url{https://nces.ed.gov/programs/coe/indicator/cua}
+
+Graduation outcomes also differ between public and private universities. National NCES data on six-year following graduation rates indicated that students at private four-year institutions graduate at slightly higher rates on average than those at public four-year colleges, a gap that other analyses attribute partly to differences in selectivity, resources, and student support services. For example, federal statistics report six-year graduation rates in the high 65-69 percent range at private compared with to a low 60-65 percent range at public institutions, while Urban Institute work using state-level samples finds that some private colleges within a state exceed 90 percent completion versus many public campuses clustered closer to 50 percent. Together, these patterns suggest that the same structural features that drive higher tuition at private universities may also be linked to stronger completion outcomes, even as considerable variation exists within each sector.
+Sources:
+\url{https://nces.ed.gov/fastfacts/display.asp?id=40\#}:\textasciitilde:text=63\%20percent\%20at\%20public\%20institutions\%2C\%2068\%20percent\%20at\%20private\%20nonprofit
+\url{https://www.bestcolleges.com/research/college-graduation-rates/}
+
+The structure of state higher-education systems further shapes how these patterns appear across the country. Nationwide tallies of Title IV institutions show that public universities make up less than one-third of all colleges, while private nonprofit and for-profit institutions together account for the majority, meaning that in many states most campuses are privately controlled even when public systems enroll more students. States with especially large higher-education sectors such as; New York, California, Texas, and Pennsylvania, tends to possess both a high number of institutions and a substantial share that are private, when looking at New York in particular, combining a dense network of private colleges with a sizable public system. As a result, plots relating the number of universities in each state to the proportion that are private often show an upward trend, with states that have more campuses overall also displaying a higher degree of privatization, though this relationship can vary and should be interpreted as descriptive rather than definitive evidence of a national rule.
+Sources:\url{https://nces.ed.gov/fastfacts/display.asp?id=1122}
+\url{https://www.worldatlas.com/articles/which-state-has-the-most-colleges.html} \url{https://www.appily.com/colleges/state}
+
+Faculty compensation patterns mirror the classification of each tier of education achieved, with pay varying not only by rank but also by institution type. National faculty salary surveys show that professors at private, research-intensive universities typically earn more at every rank than their peers at less research-focused or two-year institutions, reflecting differences in revenue streams, endowment size, and competition for talent.
+
+\section{Research Question}\label{research-question}
+
+What differentiates graduation rates for public and private colleges in the US? Additionally, can the type of college be judged without direct metrics like government funding or even tuition price? In answering these questions we also aim to explore the quantifiable differences in education quality between public and private institutions.
+
+\section{Tidying}\label{tidying}
+
+The tidying process involved reading two datasets: one on faculty compensation (AAUP) and one on college demographics and admissions (US News). Missing values (denoted by *) were converted to ``NA'' in both datasets. In the faculty compensation data, several columns representing averages and counts were multiplied by 100 to represent their real value. The US News data was improved by converting the numeric public/private code into descriptive categorical labels (``public'' and ``private''). Additionally, two new features were added by calculating the IQR for both SAT Math and SAT Verbal scores, which measures the spread of scores for admitted students. The data was then reformatted in two ways: first to create a summary table by grouping institutions by their public/private status and calculating mean tuition, graduation rate, and SAT scores. Second, to reshape the data from a wide format to a long format by consolidating all standardized test score variables (averages, Q1s, Q3s) into three descriptive columns (stat, test, and section) alongside a single score column.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aaup\_url }\OtherTok{=} \StringTok{"https://lib.stat.cmu.edu/datasets/colleges/aaup.data"}
+\NormalTok{usnews\_url }\OtherTok{=} \StringTok{"https://lib.stat.cmu.edu/datasets/colleges/usnews.data"}
+
+\NormalTok{aaup\_cols }\OtherTok{=} \FunctionTok{c}\NormalTok{(}\StringTok{"fed\_id"}\NormalTok{, }\StringTok{"college\_name"}\NormalTok{, }\StringTok{"state"}\NormalTok{, }\StringTok{"type"}\NormalTok{, }\StringTok{"avg\_sal\_full"}\NormalTok{, }\StringTok{"avg\_sal\_associate"}\NormalTok{, }\StringTok{"avg\_sal\_assistant"}\NormalTok{, }\StringTok{"avg\_sal\_all"}\NormalTok{, }\StringTok{"avg\_comp\_full"}\NormalTok{, }\StringTok{"avg\_comp\_associate"}\NormalTok{, }\StringTok{"avg\_comp\_assistant"}\NormalTok{, }\StringTok{"avg\_comp\_all"}\NormalTok{, }\StringTok{"num\_full"}\NormalTok{, }\StringTok{"num\_associate"}\NormalTok{, }\StringTok{"num\_assistant"}\NormalTok{, }\StringTok{"num\_instructor"}\NormalTok{, }\StringTok{"num\_all"}\NormalTok{)}
+
+\NormalTok{usnews\_cols }\OtherTok{=} \FunctionTok{c}\NormalTok{(}\StringTok{"fed\_id"}\NormalTok{,}\StringTok{"college\_name"}\NormalTok{,}\StringTok{"state"}\NormalTok{,}\StringTok{"public\_private"}\NormalTok{,}\StringTok{"avg\_sat\_math"}\NormalTok{,}\StringTok{"avg\_sat\_verbal"}\NormalTok{,}\StringTok{"avg\_sat\_combined"}\NormalTok{,}\StringTok{"avg\_act"}\NormalTok{,}\StringTok{"q1\_sat\_math"}\NormalTok{,}\StringTok{"q3\_sat\_math"}\NormalTok{,}\StringTok{"q1\_sat\_verbal"}\NormalTok{,}\StringTok{"q3\_sat\_verbal"}\NormalTok{,}\StringTok{"q1\_act"}\NormalTok{,}\StringTok{"q3\_act"}\NormalTok{,}\StringTok{"num\_apps\_received"}\NormalTok{,}\StringTok{"num\_apps\_accepted"}\NormalTok{,}\StringTok{"num\_new\_enrolled"}\NormalTok{,}\StringTok{"pct\_top10\_hs"}\NormalTok{,}\StringTok{"pct\_top25\_hs"}\NormalTok{,}\StringTok{"num\_ft\_undergrads"}\NormalTok{,}\StringTok{"num\_pt\_undergrads"}\NormalTok{,}\StringTok{"tuition\_instate"}\NormalTok{,}\StringTok{"tuition\_outstate"}\NormalTok{,}\StringTok{"room\_board\_cost"}\NormalTok{,}\StringTok{"room\_cost"}\NormalTok{,}\StringTok{"board\_cost"}\NormalTok{,}\StringTok{"fees\_additional"}\NormalTok{,}\StringTok{"books\_estimated"}\NormalTok{,}\StringTok{"personal\_spending\_est"}\NormalTok{,}\StringTok{"pct\_faculty\_phd"}\NormalTok{,}\StringTok{"pct\_faculty\_terminal"}\NormalTok{,}\StringTok{"student\_faculty\_ratio"}\NormalTok{,}\StringTok{"pct\_alumni\_donate"}\NormalTok{,}\StringTok{"instr\_exp\_per\_student"}\NormalTok{,}\StringTok{"grad\_rate"}\NormalTok{)}
+
+\NormalTok{calc\_iqr }\OtherTok{=} \ControlFlowTok{function}\NormalTok{(q1, q3) q3}\SpecialCharTok{{-}}\NormalTok{q1}
+
+\NormalTok{aaup }\OtherTok{=} \FunctionTok{read.csv}\NormalTok{(aaup\_url, }\AttributeTok{header =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{col.names =}\NormalTok{ aaup\_cols, }\AttributeTok{na.strings =} \StringTok{"*"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\FunctionTok{across}\NormalTok{(}\FunctionTok{starts\_with}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"avg"}\NormalTok{, }\StringTok{"num"}\NormalTok{)), }\SpecialCharTok{\textasciitilde{}}\NormalTok{ .x }\SpecialCharTok{*} \DecValTok{100}\NormalTok{))}
+
+\NormalTok{usnews }\OtherTok{=} \FunctionTok{read.csv}\NormalTok{(usnews\_url, }\AttributeTok{header =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{col.names =}\NormalTok{ usnews\_cols, }\AttributeTok{na.strings =} \StringTok{"*"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{public\_private =} \FunctionTok{factor}\NormalTok{(public\_private, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{), }\AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"public"}\NormalTok{, }\StringTok{"private"}\NormalTok{))) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{sat\_math\_iqr =} \FunctionTok{calc\_iqr}\NormalTok{(q1\_sat\_math, q3\_sat\_math), }\AttributeTok{sat\_verbal\_iqr =} \FunctionTok{calc\_iqr}\NormalTok{(q1\_sat\_verbal, q3\_sat\_verbal))}
+
+\NormalTok{pub\_vs\_priv }\OtherTok{=}\NormalTok{ usnews }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{group\_by}\NormalTok{(public\_private) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{summarize}\NormalTok{(}\AttributeTok{avg\_tuition =} \FunctionTok{mean}\NormalTok{(tuition\_instate, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{), }\AttributeTok{avg\_grad\_rate =} \FunctionTok{mean}\NormalTok{(grad\_rate, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{), }\AttributeTok{avg\_sat =} \FunctionTok{mean}\NormalTok{(avg\_sat\_combined, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+
+\NormalTok{sat\_long }\OtherTok{\textless{}{-}}\NormalTok{ usnews }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{pivot\_longer}\NormalTok{(}
+    \AttributeTok{cols =} \FunctionTok{matches}\NormalTok{(}\StringTok{"\^{}(avg|q1|q3)\_(sat|act)"}\NormalTok{),}
+    \AttributeTok{names\_to =} \FunctionTok{c}\NormalTok{(}\StringTok{"stat"}\NormalTok{, }\StringTok{"test"}\NormalTok{, }\StringTok{"section"}\NormalTok{),}
+    \AttributeTok{names\_pattern =} \StringTok{"\^{}(avg|q1|q3)\_(sat|act)\_?(math|verbal)?$"}\NormalTok{,}
+    \AttributeTok{values\_to =} \StringTok{"score"}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{select}\NormalTok{(fed\_id, college\_name, state, stat, test, section, score)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Exploratory Plots}\label{exploratory-plots}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# {-}{-}{-} Plot 1: Aggregated Metrics Comparison (using pub\_vs\_priv) {-}{-}{-}}
+\CommentTok{\# Uses: public\_private, avg\_tuition, avg\_grad\_rate, avg\_sat}
+
+\NormalTok{pub\_vs\_priv\_long }\OtherTok{\textless{}{-}}\NormalTok{ pub\_vs\_priv }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{pivot\_longer}\NormalTok{(}
+    \AttributeTok{cols =} \FunctionTok{c}\NormalTok{(avg\_tuition, avg\_sat),}
+    \AttributeTok{names\_to =} \StringTok{"Metric"}\NormalTok{,}
+    \AttributeTok{values\_to =} \StringTok{"Value"}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \CommentTok{\# Clean up metric names for better plot labels}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Metric =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Metric }\SpecialCharTok{==} \StringTok{"avg\_tuition"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Average In{-}State Tuition (USD)"}\NormalTok{,}
+\NormalTok{    Metric }\SpecialCharTok{==} \StringTok{"avg\_sat"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Average Combined SAT Score"}\NormalTok{,}
+    \AttributeTok{.default =}\NormalTok{ Metric}
+\NormalTok{  ))}
+
+\FunctionTok{ggplot}\NormalTok{(pub\_vs\_priv\_long, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ public\_private, }\AttributeTok{y =}\NormalTok{ Value, }\AttributeTok{fill =}\NormalTok{ public\_private)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{position =} \StringTok{"dodge"}\NormalTok{) }\SpecialCharTok{+}
+  \CommentTok{\# Use facet\_wrap to separate metrics due to different scales}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Metric, }\AttributeTok{scales =} \StringTok{"free\_y"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Comparison of Aggregated Metrics by Institution Type"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Institution Type"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Mean Value"}\NormalTok{,}
+    \AttributeTok{fill =} \StringTok{"Type"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.text.x =} \FunctionTok{element\_blank}\NormalTok{(), }\AttributeTok{axis.ticks.x =} \FunctionTok{element\_blank}\NormalTok{()) }\CommentTok{\# Remove redundant x{-}axis labels}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Final-Report_files/figure-latex/new_exploratory_plots-1.pdf}}
+This plot shows the difference in some major metrics between public and private institutions, namely the average SAT score of attending students and the tuition they pay. SAT scores differ by very little (\textless60), while tuition differs wildly with private institutions charging almost four times the public tuition to the average in-state student.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# {-}{-}{-} Plot 2: IQR Distribution Comparison (using usnews) {-}{-}{-}}
+\CommentTok{\# Uses: public\_private, sat\_math\_iqr, sat\_verbal\_iqr}
+
+\NormalTok{iqr\_long }\OtherTok{\textless{}{-}}\NormalTok{ usnews }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{select}\NormalTok{(public\_private, sat\_math\_iqr, sat\_verbal\_iqr) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{pivot\_longer}\NormalTok{(}
+    \AttributeTok{cols =} \FunctionTok{ends\_with}\NormalTok{(}\StringTok{"iqr"}\NormalTok{),}
+    \AttributeTok{names\_to =} \StringTok{"SAT\_Section\_IQR"}\NormalTok{,}
+    \AttributeTok{values\_to =} \StringTok{"IQR\_Value"}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \CommentTok{\# Clean up names for plot labels}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{SAT\_Section\_IQR =} \FunctionTok{str\_remove}\NormalTok{(SAT\_Section\_IQR, }\StringTok{"sat\_"}\NormalTok{),}
+         \AttributeTok{SAT\_Section\_IQR =} \FunctionTok{str\_replace}\NormalTok{(SAT\_Section\_IQR, }\StringTok{"\_iqr"}\NormalTok{, }\StringTok{""}\NormalTok{))}
+
+\FunctionTok{ggplot}\NormalTok{(iqr\_long, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ public\_private, }\AttributeTok{y =}\NormalTok{ IQR\_Value, }\AttributeTok{fill =}\NormalTok{ SAT\_Section\_IQR)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_boxplot}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ SAT\_Section\_IQR) }\SpecialCharTok{+} \CommentTok{\# Separate Math and Verbal IQR distributions}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Interquartile Range (IQR) of SAT Scores by Institution Type"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Institution Type"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Score IQR (Q3 {-} Q1)"}\NormalTok{,}
+    \AttributeTok{fill =} \StringTok{"SAT Section"}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Final-Report_files/figure-latex/unnamed-chunk-1-1.pdf}}
+This plot shows the spread of the interquartile range of SAT scores across subjects and institution types. Public and private institutions have quite a similar average spread, with private schools including more upwards outliers on verbal tests.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{usnews }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{select}\NormalTok{(public\_private, tuition\_instate, tuition\_outstate) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{pivot\_longer}\NormalTok{(}\AttributeTok{cols =} \FunctionTok{c}\NormalTok{(tuition\_instate, tuition\_outstate), }\AttributeTok{names\_to =} \StringTok{"instate\_outstate"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"tuition"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{ggplot}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_violin}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ public\_private, }\AttributeTok{y =}\NormalTok{ tuition, }\AttributeTok{fill =}\NormalTok{ instate\_outstate, }\AttributeTok{colour =}\NormalTok{ instate\_outstate)) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Distribution of In{-}State vs Out{-}of{-}State Tuition"}\NormalTok{,}
+    \AttributeTok{subtitle =} \StringTok{"Tuition Levels Differ Substantially Between Public and Privite Institutions"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Institution Type"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Tuition Cost (USD)"}\NormalTok{,}
+    \AttributeTok{fill =} \StringTok{"Tuition Type"}\NormalTok{,}
+    \AttributeTok{caption =} \StringTok{"Private instututions charge far higher tuition, and out{-}of{-}state tuition exceeds in{-}state across both types."}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Final-Report_files/figure-latex/plots-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aaup\_salary\_long }\OtherTok{\textless{}{-}}\NormalTok{ aaup }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{type =} \FunctionTok{factor}\NormalTok{(type)}
+\NormalTok{    ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{select}\NormalTok{(type, }\FunctionTok{starts\_with}\NormalTok{(}\StringTok{"avg\_sal\_"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{pivot\_longer}\NormalTok{(}
+    \AttributeTok{cols =} \FunctionTok{starts\_with}\NormalTok{(}\StringTok{"avg\_sal\_"}\NormalTok{),}
+    \AttributeTok{names\_to =} \StringTok{"rank"}\NormalTok{,}
+    \AttributeTok{names\_pattern =} \StringTok{"avg\_sal\_(.*)"}\NormalTok{,}
+    \AttributeTok{values\_to =} \StringTok{"avg\_salary"}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+\CommentTok{\# I am ordering ranks for x{-}axis}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{rank =} \FunctionTok{factor}\NormalTok{(}
+\NormalTok{      rank,}
+      \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"assistant"}\NormalTok{, }\StringTok{"associate"}\NormalTok{, }\StringTok{"full"}\NormalTok{, }\StringTok{"all"}\NormalTok{), }
+      \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Assistant"}\NormalTok{, }\StringTok{"Associate"}\NormalTok{, }\StringTok{"Full"}\NormalTok{, }\StringTok{"All ranks"}\NormalTok{)}
+\NormalTok{  ))}
+\CommentTok{\# Now summarizing mean salary by type and rank}
+\NormalTok{salary\_summary }\OtherTok{\textless{}{-}}\NormalTok{ aaup\_salary\_long }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{group\_by}\NormalTok{(type, rank) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{mean\_salary =} \FunctionTok{mean}\NormalTok{(avg\_salary, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{/} \DecValTok{100}\NormalTok{,}
+    \AttributeTok{.groups =} \StringTok{"drop"}
+\NormalTok{  )}
+
+\FunctionTok{ggplot}\NormalTok{(salary\_summary) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ rank, }\AttributeTok{y =}\NormalTok{ mean\_salary, }\AttributeTok{fill =}\NormalTok{ rank)) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{type) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Average Faculty Salary by Rank and Institution Type"}\NormalTok{,}
+    \AttributeTok{subtitle =} \StringTok{"Faculty at Private Universities Tend to Earn More at Every Rank"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Faculty Rank"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Average Salary (USD)"}\NormalTok{,}
+    \AttributeTok{caption =} \StringTok{"Across AAUP institution types, average faculty salaries consistently rise with rank."}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Final-Report_files/figure-latex/unnamed-chunk-2-1.pdf}}
+These four bar plots compare average faculty salaries across AAUP institutional categories (I, IA, IIB, VIIB), showing that salaries consistently decline as institutions move from doctoral -granting, to two-year colleges. Faculty at Type I institutions earn the highest salaries across all ranks, reflecting the greater research intensity, funding capacity, and competitive hiring environment typical of doctoral universities. This aligns with AAUP's institutional classification system, which defines Type I institutions as research-intensive universities and Type IIB/VIIB institutions as primarily undergraduate or two year colleges with fewer graduate programs and lower average compensation structures (AAUP, 2023).
+
+\url{https://www.aaup.org/explanation-statistical-data-5}
+
+\section{Modelling Plots}\label{modelling-plots}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{usnews }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{state =} \FunctionTok{fct\_lump}\NormalTok{(state, }\DecValTok{4}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{ggplot}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{geom\_boxplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{reorder}\NormalTok{(state, grad\_rate, }\AttributeTok{FUN=}\NormalTok{median), }\AttributeTok{y =}\NormalTok{ grad\_rate, }\AttributeTok{fill =}\NormalTok{ state)) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{public\_private) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Graduation Rates Across States and Instutition Types"}\NormalTok{,}
+    \AttributeTok{subtitle =} \StringTok{"States Grouped into the Top 4 Most Fequent Categories; Remaining States Grouped as \textquotesingle{}Other\textquotesingle{}"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"State (Top 4 + Other)"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Graduation Rate (\%)"}\NormalTok{,}
+    \AttributeTok{fill =} \StringTok{"State"}\NormalTok{,}
+    \AttributeTok{caption =} \StringTok{"Private universities generally show higher median graduation rates than public across states."}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Final-Report_files/figure-latex/unnamed-chunk-3-1.pdf}}
+This plot shows that the graduation rate of the average college varies not only by institution type, but by state as well with some states' public colleges outperforming the private colleges of others. This is relevant to the modelling process because it demonstrates that state is an important factor to consider when modelling graduation rates.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{usnews\_scatter }\OtherTok{\textless{}{-}}\NormalTok{ usnews }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{group\_by}\NormalTok{(state) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{summarize}\NormalTok{(}\AttributeTok{universities =} \FunctionTok{n}\NormalTok{(),}
+            \AttributeTok{percent\_private =} \FunctionTok{sum}\NormalTok{(public\_private }\SpecialCharTok{==} \StringTok{"private"}\NormalTok{) }\SpecialCharTok{/} \FunctionTok{n}\NormalTok{())}
+
+\NormalTok{max\_uni\_state }\OtherTok{\textless{}{-}}\NormalTok{ usnews\_scatter }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{(universities }\SpecialCharTok{==} \FunctionTok{max}\NormalTok{(universities))}
+
+\FunctionTok{ggplot}\NormalTok{(usnews\_scatter) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ universities, }\AttributeTok{y =}\NormalTok{ percent\_private)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_label\_repel}\NormalTok{(}\AttributeTok{data =}\NormalTok{ max\_uni\_state, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ universities, }\AttributeTok{y =}\NormalTok{ percent\_private, }\AttributeTok{label =}\NormalTok{ state)) }\SpecialCharTok{+} 
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Relationship Beteen Number of Universities and \% Private Institutions by State"}\NormalTok{,}
+    \AttributeTok{subtitle =} \StringTok{"Each Point Represents a U.S. State; the State with the Highest Number of Universities is Highlighted"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Number of Universities"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Proportion of Private Instututions"}\NormalTok{,}
+    \AttributeTok{caption =} \StringTok{"States with more universities tend to have higher proportion of private instututions, with New York as the outlier."}
+\NormalTok{  ) }\SpecialCharTok{+} 
+  \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Final-Report_files/figure-latex/unnamed-chunk-4-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{uni\_split }\OtherTok{\textless{}{-}} \FunctionTok{initial\_split}\NormalTok{(usnews, }\AttributeTok{prop =} \FloatTok{0.6}\NormalTok{, }\AttributeTok{strata =}\NormalTok{ public\_private)}
+\NormalTok{uni\_train }\OtherTok{\textless{}{-}} \FunctionTok{training}\NormalTok{(uni\_split)}
+\NormalTok{uni\_test }\OtherTok{\textless{}{-}} \FunctionTok{testing}\NormalTok{(uni\_split)}
+
+\CommentTok{\# {-}{-}{-} Linear Model Setup and Comparison {-}{-}{-}}
+
+\CommentTok{\# Define the models and their alternative specifications}
+\CommentTok{\# Model 1: Graduation Rate vs. Instructional Expense per Student}
+\NormalTok{grad\_exp\_lm\_full }\OtherTok{\textless{}{-}} \FunctionTok{linear\_reg}\NormalTok{() }\SpecialCharTok{|\textgreater{}} \FunctionTok{set\_engine}\NormalTok{(}\StringTok{"lm"}\NormalTok{)}
+\NormalTok{grad\_exp\_formula }\OtherTok{\textless{}{-}}\NormalTok{ grad\_rate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ instr\_exp\_per\_student }\SpecialCharTok{*}\NormalTok{ public\_private }\CommentTok{\# Continuous * Categorical (includes main effects)}
+
+\CommentTok{\# Model 2: Graduation Rate vs. Student{-}Faculty Ratio}
+\NormalTok{grad\_ratio\_lm\_full }\OtherTok{\textless{}{-}} \FunctionTok{linear\_reg}\NormalTok{() }\SpecialCharTok{|\textgreater{}} \FunctionTok{set\_engine}\NormalTok{(}\StringTok{"lm"}\NormalTok{)}
+\NormalTok{grad\_ratio\_formula }\OtherTok{\textless{}{-}}\NormalTok{ grad\_rate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ student\_faculty\_ratio }\SpecialCharTok{*}\NormalTok{ public\_private }\CommentTok{\# Continuous * Categorical (includes main effects)}
+
+\CommentTok{\# {-}{-}{-} Fit the Models {-}{-}{-}}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}
+
+\CommentTok{\# 1. Full Model (Model 1)}
+\NormalTok{grad\_exp\_fit\_full }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_model}\NormalTok{(grad\_exp\_lm\_full) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_formula}\NormalTok{(grad\_exp\_formula) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{fit}\NormalTok{(}\AttributeTok{data =}\NormalTok{ uni\_train)}
+
+\CommentTok{\# 2. Full Model (Model 2)}
+\NormalTok{grad\_ratio\_fit\_full }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_model}\NormalTok{(grad\_ratio\_lm\_full) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_formula}\NormalTok{(grad\_ratio\_formula) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{fit}\NormalTok{(}\AttributeTok{data =}\NormalTok{ uni\_train)}
+
+\CommentTok{\# {-}{-}{-} Comparison Models for Model 1 {-}{-}{-}}
+
+\CommentTok{\# A. Remove Continuous Feature (instr\_exp\_per\_student)}
+\NormalTok{grad\_exp\_no\_cont }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_model}\NormalTok{(grad\_exp\_lm\_full) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_formula}\NormalTok{(grad\_rate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ public\_private) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{fit}\NormalTok{(}\AttributeTok{data =}\NormalTok{ uni\_train)}
+
+\CommentTok{\# B. Remove Interaction Term (instr\_exp\_per\_student:public\_private)}
+\NormalTok{grad\_exp\_no\_int }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_model}\NormalTok{(grad\_exp\_lm\_full) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_formula}\NormalTok{(grad\_rate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ instr\_exp\_per\_student }\SpecialCharTok{+}\NormalTok{ public\_private) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{fit}\NormalTok{(}\AttributeTok{data =}\NormalTok{ uni\_train)}
+
+\CommentTok{\# {-}{-}{-} Comparison Models for Model 2 {-}{-}{-}}
+
+\CommentTok{\# C. Remove Continuous Feature (student\_faculty\_ratio)}
+\NormalTok{grad\_ratio\_no\_cont }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_model}\NormalTok{(grad\_ratio\_lm\_full) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_formula}\NormalTok{(grad\_rate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ public\_private) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{fit}\NormalTok{(}\AttributeTok{data =}\NormalTok{ uni\_train)}
+
+\CommentTok{\# D. Remove Interaction Term (student\_faculty\_ratio:public\_private)}
+\NormalTok{grad\_ratio\_no\_int }\OtherTok{\textless{}{-}} \FunctionTok{workflow}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_model}\NormalTok{(grad\_ratio\_lm\_full) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{add\_formula}\NormalTok{(grad\_rate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ student\_faculty\_ratio }\SpecialCharTok{+}\NormalTok{ public\_private) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{fit}\NormalTok{(}\AttributeTok{data =}\NormalTok{ uni\_train)}
+
+\CommentTok{\# {-}{-}{-} Function to calculate RMSE on the test set {-}{-}{-}}
+
+\NormalTok{calculate\_rmse }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(fit, data) \{}
+\NormalTok{  preds }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{new\_data =}\NormalTok{ data) }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{bind\_cols}\NormalTok{(data }\SpecialCharTok{|\textgreater{}} \FunctionTok{select}\NormalTok{(grad\_rate))}
+  
+\NormalTok{  rmse\_value }\OtherTok{\textless{}{-}}\NormalTok{ preds }\SpecialCharTok{|\textgreater{}} 
+    \FunctionTok{rmse}\NormalTok{(}\AttributeTok{truth =}\NormalTok{ grad\_rate, }\AttributeTok{estimate =}\NormalTok{ .pred) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{select}\NormalTok{(.estimate) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{pull}\NormalTok{()}
+  
+  \FunctionTok{return}\NormalTok{(rmse\_value)}
+\NormalTok{\}}
+
+\CommentTok{\# {-}{-}{-} Calculate and Compare RMSE on uni\_test {-}{-}{-}}
+
+\CommentTok{\# Model 1 Comparisons}
+\NormalTok{rmse\_full\_exp }\OtherTok{\textless{}{-}} \FunctionTok{calculate\_rmse}\NormalTok{(grad\_exp\_fit\_full, uni\_test)}
+\NormalTok{rmse\_no\_cont\_exp }\OtherTok{\textless{}{-}} \FunctionTok{calculate\_rmse}\NormalTok{(grad\_exp\_no\_cont, uni\_test)}
+\NormalTok{rmse\_no\_int\_exp }\OtherTok{\textless{}{-}} \FunctionTok{calculate\_rmse}\NormalTok{(grad\_exp\_no\_int, uni\_test)}
+
+\CommentTok{\# Model 2 Comparisons}
+\NormalTok{rmse\_full\_ratio }\OtherTok{\textless{}{-}} \FunctionTok{calculate\_rmse}\NormalTok{(grad\_ratio\_fit\_full, uni\_test)}
+\NormalTok{rmse\_no\_cont\_ratio }\OtherTok{\textless{}{-}} \FunctionTok{calculate\_rmse}\NormalTok{(grad\_ratio\_no\_cont, uni\_test)}
+\NormalTok{rmse\_no\_int\_ratio }\OtherTok{\textless{}{-}} \FunctionTok{calculate\_rmse}\NormalTok{(grad\_ratio\_no\_int, uni\_test)}
+
+\CommentTok{\# {-}{-}{-} Create Comparison Table {-}{-}{-}}
+
+\NormalTok{rmse\_comparison\_table }\OtherTok{\textless{}{-}}\NormalTok{ tibble}\SpecialCharTok{::}\FunctionTok{tribble}\NormalTok{(}
+  \SpecialCharTok{\textasciitilde{}}\NormalTok{Model, }\SpecialCharTok{\textasciitilde{}}\NormalTok{Model\_Type, }\SpecialCharTok{\textasciitilde{}}\NormalTok{RMSE\_Test,}
+  \StringTok{"Grad\_Exp\_Full"}\NormalTok{, }\StringTok{"Full Model"}\NormalTok{, rmse\_full\_exp,}
+  \StringTok{"Grad\_Exp\_No\_Instr\_Exp"}\NormalTok{, }\StringTok{"No Continuous Feature"}\NormalTok{, rmse\_no\_cont\_exp,}
+  \StringTok{"Grad\_Exp\_No\_Interaction"}\NormalTok{, }\StringTok{"No Interaction Term"}\NormalTok{, rmse\_no\_int\_exp,}
+  \StringTok{"Grad\_Ratio\_Full"}\NormalTok{, }\StringTok{"Full Model"}\NormalTok{, rmse\_full\_ratio,}
+  \StringTok{"Grad\_Ratio\_No\_Stu\_Fac\_Ratio"}\NormalTok{, }\StringTok{"No Continuous Feature"}\NormalTok{, rmse\_no\_cont\_ratio,}
+  \StringTok{"Grad\_Ratio\_No\_Interaction"}\NormalTok{, }\StringTok{"No Interaction Term"}\NormalTok{, rmse\_no\_int\_ratio}
+\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Model\_Family =} \FunctionTok{if\_else}\NormalTok{(}\FunctionTok{str\_detect}\NormalTok{(Model, }\StringTok{"Exp"}\NormalTok{), }\StringTok{"Model 1: Expense"}\NormalTok{, }\StringTok{"Model 2: Ratio"}\NormalTok{))}
+
+\FunctionTok{print}\NormalTok{(rmse\_comparison\_table)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 6 x 4
+##   Model                       Model_Type            RMSE_Test Model_Family    
+##   <chr>                       <chr>                     <dbl> <chr>           
+## 1 Grad_Exp_Full               Full Model                 16.1 Model 1: Expense
+## 2 Grad_Exp_No_Instr_Exp       No Continuous Feature      17.5 Model 1: Expense
+## 3 Grad_Exp_No_Interaction     No Interaction Term        16.1 Model 1: Expense
+## 4 Grad_Ratio_Full             Full Model                 17.0 Model 2: Ratio  
+## 5 Grad_Ratio_No_Stu_Fac_Ratio No Continuous Feature      17.5 Model 2: Ratio  
+## 6 Grad_Ratio_No_Interaction   No Interaction Term        17.0 Model 2: Ratio
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# {-}{-}{-} Optional: Visualize Model 1 Predictions {-}{-}{-}}
+\NormalTok{grad\_exp\_preds }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(grad\_exp\_fit\_full, }\AttributeTok{new\_data =}\NormalTok{ uni\_test) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{bind\_cols}\NormalTok{(uni\_test)}
+
+\FunctionTok{ggplot}\NormalTok{(grad\_exp\_preds, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ instr\_exp\_per\_student, }\AttributeTok{y =}\NormalTok{ grad\_rate, }\AttributeTok{color =}\NormalTok{ public\_private)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.6}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ .pred), }\AttributeTok{linewidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Model 1: Graduation Rate Prediction"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Instructional Expenditure Per Student (USD)"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Graduation Rate (\%)"}\NormalTok{,}
+    \AttributeTok{color =} \StringTok{"Institution Type"}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Final-Report_files/figure-latex/modelling-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{xgb\_tune\_spec }\OtherTok{\textless{}{-}} \FunctionTok{boost\_tree}\NormalTok{(}
+  \AttributeTok{trees =} \FunctionTok{tune}\NormalTok{(),}
+  \AttributeTok{tree\_depth =} \FunctionTok{tune}\NormalTok{(),}
+  \AttributeTok{mtry =} \FunctionTok{tune}\NormalTok{(),}
+  \AttributeTok{min\_n =} \FunctionTok{tune}\NormalTok{(),}
+  \AttributeTok{learn\_rate =} \FloatTok{0.1}\NormalTok{,}
+\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{set\_engine}\NormalTok{(}\StringTok{"xgboost"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{set\_mode}\NormalTok{(}\StringTok{"classification"}\NormalTok{)}
+
+
+\NormalTok{xgb\_params }\OtherTok{\textless{}{-}} \FunctionTok{parameters}\NormalTok{(}
+  \FunctionTok{trees}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\DecValTok{500}\NormalTok{, }\DecValTok{2000}\NormalTok{)),}
+  \FunctionTok{tree\_depth}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{10}\NormalTok{)),}
+  \FunctionTok{mtry}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{30}\NormalTok{)),}
+  \FunctionTok{min\_n}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{40}\NormalTok{))}
+\NormalTok{)}
+
+\NormalTok{rf\_tune\_spec }\OtherTok{\textless{}{-}} \FunctionTok{rand\_forest}\NormalTok{(}
+  \AttributeTok{trees =} \DecValTok{1000}\NormalTok{,}
+  \AttributeTok{mtry =} \FunctionTok{tune}\NormalTok{(),}
+  \AttributeTok{min\_n =} \FunctionTok{tune}\NormalTok{()}
+\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{set\_engine}\NormalTok{(}\StringTok{"ranger"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{set\_mode}\NormalTok{(}\StringTok{"classification"}\NormalTok{)}
+
+\NormalTok{rf\_params }\OtherTok{\textless{}{-}} \FunctionTok{parameters}\NormalTok{(}
+  \FunctionTok{mtry}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{30}\NormalTok{)), }
+  \FunctionTok{min\_n}\NormalTok{(}\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{40}\NormalTok{))}
+\NormalTok{)}
+
+\NormalTok{uni\_folds }\OtherTok{\textless{}{-}} \FunctionTok{vfold\_cv}\NormalTok{(uni\_train, }\AttributeTok{v =} \DecValTok{2}\NormalTok{, }\AttributeTok{strata =}\NormalTok{ public\_private)}
+
+\NormalTok{cl }\OtherTok{\textless{}{-}} \FunctionTok{makePSOCKcluster}\NormalTok{(}\FunctionTok{detectCores}\NormalTok{() }\SpecialCharTok{{-}} \DecValTok{4}\NormalTok{)}
+\FunctionTok{registerDoParallel}\NormalTok{(cl)}
+\FunctionTok{print}\NormalTok{(}\StringTok{"Parallel processing enabled"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Parallel processing enabled"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{full\_recipe }\OtherTok{\textless{}{-}} \FunctionTok{recipe}\NormalTok{(public\_private }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data =}\NormalTok{ uni\_train) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{update\_role}\NormalTok{(}
+    \FunctionTok{c}\NormalTok{(fed\_id, college\_name), }
+    \AttributeTok{new\_role =} \StringTok{"ID"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{step\_novel}\NormalTok{(state) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{step\_dummy}\NormalTok{(}\FunctionTok{all\_nominal\_predictors}\NormalTok{(), }\AttributeTok{one\_hot =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{step\_impute\_median}\NormalTok{(}\FunctionTok{all\_numeric\_predictors}\NormalTok{()) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{step\_normalize}\NormalTok{(}\FunctionTok{all\_numeric\_predictors}\NormalTok{())}
+
+\NormalTok{costless\_recipe }\OtherTok{\textless{}{-}} \FunctionTok{recipe}\NormalTok{(public\_private }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data =}\NormalTok{ uni\_train) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{update\_role}\NormalTok{(}
+    \FunctionTok{c}\NormalTok{(fed\_id, college\_name, tuition\_instate, tuition\_outstate, room\_board\_cost, room\_cost, board\_cost, fees\_additional, books\_estimated, personal\_spending\_est, instr\_exp\_per\_student), }
+    \AttributeTok{new\_role =} \StringTok{"ID"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{step\_novel}\NormalTok{(state) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{step\_dummy}\NormalTok{(}\FunctionTok{all\_nominal\_predictors}\NormalTok{(), }\AttributeTok{one\_hot =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{step\_impute\_median}\NormalTok{(}\FunctionTok{all\_numeric\_predictors}\NormalTok{()) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{step\_normalize}\NormalTok{(}\FunctionTok{all\_numeric\_predictors}\NormalTok{())}
+
+\NormalTok{apps\_recipe }\OtherTok{\textless{}{-}} \FunctionTok{recipe}\NormalTok{(public\_private }\SpecialCharTok{\textasciitilde{}}\NormalTok{ num\_apps\_received }\SpecialCharTok{+}\NormalTok{ num\_new\_enrolled }\SpecialCharTok{+}\NormalTok{ pct\_top10\_hs, }\AttributeTok{data =}\NormalTok{ uni\_train) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{step\_dummy}\NormalTok{(}\FunctionTok{all\_nominal\_predictors}\NormalTok{(), }\AttributeTok{one\_hot =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{step\_impute\_median}\NormalTok{(}\FunctionTok{all\_numeric\_predictors}\NormalTok{()) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{step\_normalize}\NormalTok{(}\FunctionTok{all\_numeric\_predictors}\NormalTok{())}
+
+\NormalTok{workflows }\OtherTok{\textless{}{-}} \FunctionTok{workflow\_set}\NormalTok{(}\AttributeTok{preproc =} \FunctionTok{list}\NormalTok{(}\AttributeTok{full =}\NormalTok{ full\_recipe, }\AttributeTok{costless =}\NormalTok{ costless\_recipe, }\AttributeTok{apps =}\NormalTok{ apps\_recipe), }
+                             \AttributeTok{models =} \FunctionTok{list}\NormalTok{(}\AttributeTok{xgb =}\NormalTok{ xgb\_tune\_spec, }\AttributeTok{rf =}\NormalTok{ rf\_tune\_spec))}
+
+
+\CommentTok{\# Start timer}
+\FunctionTok{tic}\NormalTok{()}
+
+\NormalTok{bayes\_results }\OtherTok{=} \FunctionTok{list}\NormalTok{()}
+
+
+\FunctionTok{map}\NormalTok{(workflows}\SpecialCharTok{$}\NormalTok{wflow\_id, }\ControlFlowTok{function}\NormalTok{(id) \{}
+  
+\NormalTok{  current\_workflow }\OtherTok{\textless{}{-}}\NormalTok{ workflows }\SpecialCharTok{|\textgreater{}}
+        \FunctionTok{extract\_workflow}\NormalTok{(}\AttributeTok{id =}\NormalTok{ id)}
+  
+\NormalTok{  current\_metrics }\OtherTok{=} \FunctionTok{metric\_set}\NormalTok{(roc\_auc, accuracy)}
+  
+  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{str\_detect}\NormalTok{(id, }\StringTok{"rf"}\NormalTok{)) \{}
+\NormalTok{    current\_params }\OtherTok{\textless{}{-}}\NormalTok{ rf\_params}
+\NormalTok{  \} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{    current\_params }\OtherTok{\textless{}{-}}\NormalTok{ xgb\_params}
+\NormalTok{  \}}
+  
+  
+    \CommentTok{\# Run the Bayesian Optimization}
+\NormalTok{  bayes\_results[[id]] }\OtherTok{\textless{}\textless{}{-}} \FunctionTok{tune\_bayes}\NormalTok{(}
+\NormalTok{    current\_workflow,}
+    \AttributeTok{resamples =}\NormalTok{ uni\_folds,}
+    \AttributeTok{iter =} \DecValTok{5}\NormalTok{,}
+    \AttributeTok{param\_info =}\NormalTok{ current\_params,}
+    \AttributeTok{metrics =}\NormalTok{ current\_metrics,}
+    \AttributeTok{control =} \FunctionTok{control\_bayes}\NormalTok{(}
+      \AttributeTok{no\_improve =} \DecValTok{10}\NormalTok{,}
+      \AttributeTok{save\_pred =} \ConstantTok{TRUE}\NormalTok{,}
+      \AttributeTok{verbose =} \ConstantTok{TRUE}
+\NormalTok{  ))}
+\NormalTok{\})}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [[1]]
+## # Tuning results
+## # 2-fold cross-validation using stratification 
+## # A tibble: 12 x 6
+##    splits            id    .metrics          .notes           .predictions .iter
+##    <list>            <chr> <list>            <list>           <list>       <int>
+##  1 <split [390/391]> Fold1 <tibble [10 x 8]> <tibble [1 x 4]> <tibble>         0
+##  2 <split [391/390]> Fold2 <tibble [10 x 8]> <tibble [1 x 4]> <tibble>         0
+##  3 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         1
+##  4 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         1
+##  5 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         2
+##  6 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         2
+##  7 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         3
+##  8 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         3
+##  9 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         4
+## 10 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         4
+## 11 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         5
+## 12 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         5
+## 
+## There were issues with some computations:
+## 
+##   - Warning(s) x12: !  The following column has zero variance so scaling cannot be us...
+## 
+## Run `show_notes(.Last.tune.result)` for more information.
+## 
+## [[2]]
+## # Tuning results
+## # 2-fold cross-validation using stratification 
+## # A tibble: 12 x 6
+##    splits            id    .metrics          .notes           .predictions .iter
+##    <list>            <chr> <list>            <list>           <list>       <int>
+##  1 <split [390/391]> Fold1 <tibble [10 x 6]> <tibble [1 x 4]> <tibble>         0
+##  2 <split [391/390]> Fold2 <tibble [10 x 6]> <tibble [1 x 4]> <tibble>         0
+##  3 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         1
+##  4 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         1
+##  5 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         2
+##  6 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         2
+##  7 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         3
+##  8 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         3
+##  9 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         4
+## 10 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         4
+## 11 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         5
+## 12 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         5
+## 
+## There were issues with some computations:
+## 
+##   - Warning(s) x12: !  The following column has zero variance so scaling cannot be us...
+## 
+## Run `show_notes(.Last.tune.result)` for more information.
+## 
+## [[3]]
+## # Tuning results
+## # 2-fold cross-validation using stratification 
+## # A tibble: 12 x 6
+##    splits            id    .metrics          .notes           .predictions .iter
+##    <list>            <chr> <list>            <list>           <list>       <int>
+##  1 <split [390/391]> Fold1 <tibble [10 x 8]> <tibble [1 x 4]> <tibble>         0
+##  2 <split [391/390]> Fold2 <tibble [10 x 8]> <tibble [1 x 4]> <tibble>         0
+##  3 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         1
+##  4 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         1
+##  5 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         2
+##  6 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         2
+##  7 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         3
+##  8 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         3
+##  9 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         4
+## 10 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         4
+## 11 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         5
+## 12 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [1 x 4]> <tibble>         5
+## 
+## There were issues with some computations:
+## 
+##   - Warning(s) x12: !  The following column has zero variance so scaling cannot be us...
+## 
+## Run `show_notes(.Last.tune.result)` for more information.
+## 
+## [[4]]
+## # Tuning results
+## # 2-fold cross-validation using stratification 
+## # A tibble: 12 x 6
+##    splits            id    .metrics          .notes           .predictions .iter
+##    <list>            <chr> <list>            <list>           <list>       <int>
+##  1 <split [390/391]> Fold1 <tibble [10 x 6]> <tibble [1 x 4]> <tibble>         0
+##  2 <split [391/390]> Fold2 <tibble [10 x 6]> <tibble [1 x 4]> <tibble>         0
+##  3 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         1
+##  4 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         1
+##  5 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         2
+##  6 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         2
+##  7 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         3
+##  8 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         3
+##  9 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         4
+## 10 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         4
+## 11 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         5
+## 12 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         5
+## 
+## There were issues with some computations:
+## 
+##   - Warning(s) x12: !  The following column has zero variance so scaling cannot be us...
+## 
+## Run `show_notes(.Last.tune.result)` for more information.
+## 
+## [[5]]
+## # Tuning results
+## # 2-fold cross-validation using stratification 
+## # A tibble: 12 x 6
+##    splits            id    .metrics          .notes           .predictions .iter
+##    <list>            <chr> <list>            <list>           <list>       <int>
+##  1 <split [390/391]> Fold1 <tibble [10 x 8]> <tibble [0 x 4]> <tibble>         0
+##  2 <split [391/390]> Fold2 <tibble [10 x 8]> <tibble [0 x 4]> <tibble>         0
+##  3 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [0 x 4]> <tibble>         1
+##  4 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [0 x 4]> <tibble>         1
+##  5 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [0 x 4]> <tibble>         2
+##  6 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [0 x 4]> <tibble>         2
+##  7 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [0 x 4]> <tibble>         3
+##  8 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [0 x 4]> <tibble>         3
+##  9 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [0 x 4]> <tibble>         4
+## 10 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [0 x 4]> <tibble>         4
+## 11 <split [390/391]> Fold1 <tibble [2 x 8]>  <tibble [0 x 4]> <tibble>         5
+## 12 <split [391/390]> Fold2 <tibble [2 x 8]>  <tibble [0 x 4]> <tibble>         5
+## 
+## [[6]]
+## # Tuning results
+## # 2-fold cross-validation using stratification 
+## # A tibble: 12 x 6
+##    splits            id    .metrics          .notes           .predictions .iter
+##    <list>            <chr> <list>            <list>           <list>       <int>
+##  1 <split [390/391]> Fold1 <tibble [10 x 6]> <tibble [4 x 4]> <tibble>         0
+##  2 <split [391/390]> Fold2 <tibble [10 x 6]> <tibble [4 x 4]> <tibble>         0
+##  3 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         1
+##  4 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         1
+##  5 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         2
+##  6 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         2
+##  7 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         3
+##  8 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         3
+##  9 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         4
+## 10 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         4
+## 11 <split [390/391]> Fold1 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         5
+## 12 <split [391/390]> Fold2 <tibble [2 x 6]>  <tibble [1 x 4]> <tibble>         5
+## 
+## There were issues with some computations:
+## 
+##   - Warning(s) x2: ! 16 columns were requested but there were 3 predictors in the da...
+##   - Warning(s) x2: ! 20 columns were requested but there were 3 predictors in the da...
+##   - Warning(s) x2: ! 23 columns were requested but there were 3 predictors in the da...
+##   - Warning(s) x8: ! 30 columns were requested but there were 3 predictors in the da...
+##   - Warning(s) x2: ! 4 columns were requested but there were 3 predictors in the dat...
+##   - Warning(s) x2: ! 9 columns were requested but there were 3 predictors in the dat...
+## 
+## Run `show_notes(.Last.tune.result)` for more information.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Stop parallel processing}
+\FunctionTok{stopCluster}\NormalTok{(cl)}
+
+\CommentTok{\# End timer}
+\FunctionTok{toc}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 125.7 sec elapsed
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{final\_fits }\OtherTok{=} \FunctionTok{list}\NormalTok{()}
+\NormalTok{best\_params }\OtherTok{=} \FunctionTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (mod\_name }\ControlFlowTok{in} \FunctionTok{names}\NormalTok{(bayes\_results))\{}
+
+\NormalTok{  current\_best\_params }\OtherTok{\textless{}{-}} \FunctionTok{select\_best}\NormalTok{(bayes\_results[[mod\_name]], }\AttributeTok{metric =} \StringTok{"roc\_auc"}\NormalTok{)}
+  
+  
+\NormalTok{  best\_params[[mod\_name]] }\OtherTok{=}\NormalTok{ current\_best\_params}
+  
+\NormalTok{  final\_workflow }\OtherTok{\textless{}{-}}\NormalTok{ workflows }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{extract\_workflow}\NormalTok{(}\AttributeTok{id =}\NormalTok{ mod\_name) }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{finalize\_workflow}\NormalTok{(current\_best\_params)}
+  
+\NormalTok{  final\_fits[[mod\_name]] }\OtherTok{\textless{}{-}}\NormalTok{ final\_workflow }\SpecialCharTok{|\textgreater{}}
+    \FunctionTok{fit}\NormalTok{(}\AttributeTok{data =}\NormalTok{ uni\_train)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{final\_results }\OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(}
+\NormalTok{  final\_fits, }
+  \AttributeTok{.f =} \ControlFlowTok{function}\NormalTok{(model\_fit) \{}
+    
+\NormalTok{    test\_predictions }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(model\_fit, }\AttributeTok{new\_data =}\NormalTok{ uni\_test, }\AttributeTok{type =} \StringTok{"prob"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+     \FunctionTok{bind\_cols}\NormalTok{(uni\_test }\SpecialCharTok{|\textgreater{}} \FunctionTok{select}\NormalTok{(public\_private))}
+
+\NormalTok{    class\_predictions }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(model\_fit, }\AttributeTok{new\_data =}\NormalTok{ uni\_test, }\AttributeTok{type =} \StringTok{"class"}\NormalTok{)}
+
+\NormalTok{    test\_predictions }\OtherTok{\textless{}{-}}\NormalTok{ test\_predictions }\SpecialCharTok{|\textgreater{}}
+      \FunctionTok{bind\_cols}\NormalTok{(class\_predictions)}
+      
+\NormalTok{    roc\_auc\_result }\OtherTok{\textless{}{-}}\NormalTok{ test\_predictions }\SpecialCharTok{|\textgreater{}}
+      \FunctionTok{roc\_auc}\NormalTok{(}
+        \AttributeTok{truth =}\NormalTok{ public\_private,}
+\NormalTok{        .pred\_public}
+\NormalTok{      )}
+    
+\NormalTok{    accuracy\_result }\OtherTok{\textless{}{-}}\NormalTok{ test\_predictions }\SpecialCharTok{|\textgreater{}}
+      \FunctionTok{accuracy}\NormalTok{(}
+        \AttributeTok{truth =}\NormalTok{ public\_private,}
+        \AttributeTok{estimate =}\NormalTok{ .pred\_class }
+\NormalTok{      )}
+    
+    \FunctionTok{bind\_rows}\NormalTok{(roc\_auc\_result, accuracy\_result)}
+\NormalTok{  \},}
+  \AttributeTok{.id =} \StringTok{"model\_name"} 
+\NormalTok{)}
+
+\NormalTok{final\_results }\OtherTok{\textless{}{-}}\NormalTok{ final\_results }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{pivot\_wider}\NormalTok{(}\AttributeTok{names\_from =}\NormalTok{ .metric, }\AttributeTok{values\_from =}\NormalTok{ .estimate) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{separate\_wider\_delim}\NormalTok{(model\_name, }\StringTok{"\_"}\NormalTok{, }\AttributeTok{names =} \FunctionTok{c}\NormalTok{(}\StringTok{"recipe"}\NormalTok{, }\StringTok{"model"}\NormalTok{))}
+
+\FunctionTok{print}\NormalTok{(final\_results)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 6 x 5
+##   recipe   model .estimator roc_auc accuracy
+##   <chr>    <chr> <chr>        <dbl>    <dbl>
+## 1 full     xgb   binary       0.987    0.964
+## 2 full     rf    binary       0.992    0.960
+## 3 costless xgb   binary       0.948    0.896
+## 4 costless rf    binary       0.952    0.906
+## 5 apps     xgb   binary       0.908    0.869
+## 6 apps     rf    binary       0.921    0.875
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(final\_results) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{model, }\AttributeTok{y=}\NormalTok{accuracy, }\AttributeTok{fill=}\NormalTok{model)) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{recipe)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Final-Report_files/figure-latex/unnamed-chunk-5-1.pdf}}
+
+\end{document}
