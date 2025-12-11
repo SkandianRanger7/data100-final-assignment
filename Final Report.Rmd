@@ -75,16 +75,13 @@ train_val_split_2 <- initial_split(uni_train_val, prop = 0.75, strata = public_p
 uni_train <- training(train_val_split_2) # 60% for training
 uni_val <- testing(train_val_split_2) # 20% for validation
 usnews <- uni_train # Ensures only training data is used for plots
-pub_vs_priv = usnews |>
-  group_by(public_private) |>
+pub_vs_priv = usnews |> group_by(public_private) |>
   summarize(avg_tuition = mean(tuition_instate, na.rm = TRUE), avg_grad_rate = mean(grad_rate, na.rm = TRUE), avg_sat = mean(avg_sat_combined, na.rm = TRUE))
-sat_long <- usnews |>
-  pivot_longer(
+sat_long <- usnews |> pivot_longer(
     cols = matches("^(avg|q1|q3)_(sat|act)"),
     names_to = c("stat", "test", "section"),
     names_pattern = "^(avg|q1|q3)_(sat|act)_?(math|verbal)?$",
-    values_to = "score"
-  ) |>
+    values_to = "score") |>
   select(fed_id, college_name, state, stat, test, section, score)
 ```
 
@@ -98,30 +95,25 @@ iqr_long <- usnews |> select(public_private, sat_math_iqr, sat_verbal_iqr) |>
 ggplot(iqr_long, aes(x = public_private, y = IQR_Value, fill = SAT_Section_IQR)) +
   geom_boxplot() + facet_wrap(~ SAT_Section_IQR) + labs(
     title = "Interquartile Range (IQR) of SAT Scores by Institution Type",
-    x = "Institution Type",y = "Score IQR (Q3 - Q1)",fill = "SAT Section") +
-  theme_bw()
+    x = "Institution Type",y = "Score IQR (Q3 - Q1)",fill = "SAT Section") + theme_bw()
 ```
-
+Across both tests the IQR is quite similar between public and private institutions.
+However, the math spread is slightly wider.
+Private schools tend to have more upward outliers suggesting that they catch many of the highest achieving students.
 ```{r plots, fig.height=3}
 usnews |> select(public_private, tuition_instate, tuition_outstate) |>
   pivot_longer(cols = c(tuition_instate, tuition_outstate), names_to = "instate_outstate", values_to = "tuition") |>
   ggplot() +
     geom_violin(aes(x = public_private, y = tuition, fill = instate_outstate, colour = instate_outstate)) +
-  labs(
-    title = "Distribution of In-State vs Out-of-State Tuition",
+  labs(title = "Distribution of In-State vs Out-of-State Tuition",
     subtitle = "Tuition Levels Differ Substantially Between Public and Private Institutions",
-    x = "Institution Type",
-    y = "Tuition Cost (USD)",
-    fill = "Tuition Type",
+    x = "Institution Type",y = "Tuition Cost (USD)",fill = "Tuition Type",
     caption = "Private instututions charge far higher tuition, and out-of-state tuition exceeds in-state across both types.") + 
   theme_bw()
 ```
-
-Across both tests the IQR is quite similar between public and private institutions.
-However, the math spread is slightly wider.
-Private schools tend to have more upward outliers suggesting that they catch many of the highest achieving students.
-
 Public universities offer significantly lower in-state tuition due to state subsidies, while out of state students face generally higher charges.
+Private universities do not differentiate based on residency status, display substantially higher tuition overall with greater variation.
+This pattern aligns with national tuition statistic from the U.S.
 Private universities do not differentiate based on residency status, display substantially higher tuition overall with greater variation.
 This pattern aligns with national tuition statistic from the U.S.
 Department of Education, which shows that private institutions charge substantially higher tuition and that out-of-state students at public universities pay considerably higher than in-state students.
@@ -172,6 +164,10 @@ usnews |> mutate(state = fct_lump(state, 4)) |>
   theme_bw()
 ```
 
+Private institutions consistently show higher median graduation rates than public universities within the same states, reflecting differences in selectivity, student support, and available resources.
+Findings from Urban Institute also show that private four-year colleges report substantially higher graduation rates than public four-year colleges withing the same state.
+Source: <https://www.urban.org/sites/default/files/publication/101635/comparing_colleges_graduation_rates_0.pdf>
+
 ```{r, fig.height=3}
 usnews |> select(public_private, grad_rate, tuition_instate, tuition_outstate) |>
   pivot_longer(
@@ -195,10 +191,8 @@ usnews |> select(public_private, grad_rate, tuition_instate, tuition_outstate) |
 The above scatter plot shows that despite private schools almost always charging higher tuition, graduation outcomes are still mixed.
 This indicates that public or private status alone is a weak indicator of graduation rate, but are still important to consider since graduation rates only reach their true peaks at private schools.
 
-Private institutions consistently show higher median graduation rates than public universities within the same states, reflecting differences in selectivity, student support, and available resources.
-Findings from Urban Institute also show that private four-year colleges report substantially higher graduation rates than public four-year colleges withing the same state.
-Source: <https://www.urban.org/sites/default/files/publication/101635/comparing_colleges_graduation_rates_0.pdf>
 ### Linear Modelling
+
 ```{r modelling, fig.height=3.5}
 lm_spec <- linear_reg() |> set_engine("lm")
 formulas_to_test <- list(
@@ -211,42 +205,35 @@ formulas_to_test <- list(
 calculate_rmse <- function(fit, data) {
   preds <- predict(fit, new_data = data) |> 
     bind_cols(data |> select(grad_rate))
-  rmse_value <- preds |> 
-    rmse(truth = grad_rate, estimate = .pred) |>
-    select(.estimate) |>
-    pull()
+  rmse_value <- preds |> rmse(truth = grad_rate, estimate = .pred) |>
+    select(.estimate) |> pull()
   return(rmse_value)}
 fit_and_validate <- function(formula, spec, data) {
-  wf <- workflow() |>
-    add_model(spec) |>
-    add_formula(formula)
+  wf <- workflow() |> add_model(spec) |> add_formula(formula)
   fit <- wf |> fit(data = data)
   list(fit = fit, rmse = calculate_rmse(fit, uni_val))}
-model_results <- purrr::map(formulas_to_test, ~fit_and_validate(.x, lm_spec, uni_train))
+model_results <- map(formulas_to_test, ~fit_and_validate(.x, lm_spec, uni_train))
 grad_exp_fit_full <- model_results$Grad_Exp_Full$fit
 grad_ratio_fit_full <- model_results$Grad_Ratio_Full$fit
 rmse_comparison_table <- tibble(
   Model = names(model_results),
-  RMSE_Validation = purrr::map_dbl(model_results, "rmse")) |>
+  RMSE_Validation = map_dbl(model_results, "rmse")) |>
   mutate(
-    Model_Family = if_else(stringr::str_detect(Model, "Exp"), "Model 1: Expense", "Model 2: Ratio"),
+    Model_Family = if_else(str_detect(Model, "Exp"), "Model 1: Expense", "Model 2: Ratio"),
     Model_Type = case_when(
-      stringr::str_detect(Model, "Full") ~ "Full Model",
-      stringr::str_detect(Model, "No_Cont") ~ "No Continuous Feature",
-      stringr::str_detect(Model, "No_Int") ~ "No Interaction Term",
+      str_detect(Model, "Full") ~ "Full Model",
+      str_detect(Model, "No_Cont") ~ "No Continuous Feature",
+      str_detect(Model, "No_Int") ~ "No Interaction Term",
       .default = "Error"))
 kable(rmse_comparison_table) 
 ggplot(rmse_comparison_table) +
   geom_col(aes(x = Model, y = RMSE_Validation, fill = Model_Family), show.legend = FALSE) +
   geom_text(aes(x = Model, y = RMSE_Validation, label = round(RMSE_Validation, 2)), 
             vjust = 1) +
-  facet_wrap(~ Model_Family, scales = "free_x") +
-  labs(
+  facet_wrap(~ Model_Family, scales = "free_x") + labs(
     title = "Validation RMSE Comparison Across Linear Model Variations",
     subtitle = "RMSE calculated on the held-out validation set",
-    x = "Model Specification",
-    y = "Validation RMSE (Graduation Rate % Error)"
-  ) +
+    x = "Model Specification",y = "Validation RMSE (Graduation Rate % Error)") +
   theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -254,33 +241,16 @@ Two sets of features were used to project the graduation rate: the student to fa
 Both of these features were combined with the private/public classification.
 These two metrics were chosen because they represent the amount of support given to the studend and thus the advantage the school provides to students who might otherwise struggle to graduate.
 ### Advanced Modelling
+
 ```{r advanced_modelling, results = 'hide'}
-xgb_tune_spec <- boost_tree(
-  trees = tune(),
-  tree_depth = tune(),
-  mtry = tune(),
-  min_n = tune(),
-  learn_rate = 0.1,
-) |>
-  set_engine("xgboost") |>
+xgb_tune_spec <- boost_tree(trees = tune(),tree_depth = tune(),mtry = tune(),
+  min_n = tune(),learn_rate = 0.1,) |> set_engine("xgboost") |>
   set_mode("classification")
-xgb_params <- parameters(
-  trees(range = c(500, 2000)),
-  tree_depth(range = c(3, 10)),
-  mtry(range = c(3, 30)),
-  min_n(range = c(3, 40))
-)
-rf_tune_spec <- rand_forest(
-  trees = 1000,
-  mtry = tune(),
-  min_n = tune()
-) |>
-  set_engine("ranger") |> 
-  set_mode("classification")
-rf_params <- parameters(
-  mtry(range = c(3, 30)), 
-  min_n(range = c(3, 40))
-)
+xgb_params <- parameters(trees(range = c(500, 2000)), tree_depth(range = c(3, 10)),
+  mtry(range = c(3, 30)), min_n(range = c(3, 40)))
+rf_tune_spec <- rand_forest(trees = 1000,mtry = tune(),min_n = tune()) |>
+  set_engine("ranger") |> set_mode("classification")
+rf_params <- parameters(mtry(range = c(3, 30)), min_n(range = c(3, 40)))
 uni_folds <- vfold_cv(uni_train, v = 2, strata = public_private)
 cl <- makePSOCKcluster(detectCores() - 4)
 registerDoParallel(cl)
@@ -309,20 +279,11 @@ map(workflows$wflow_id, function(id) {
   current_workflow <- workflows |>
         extract_workflow(id = id)
   current_metrics = metric_set(roc_auc, accuracy)
-  if (str_detect(id, "rf")) {
-    current_params <- rf_params
-  } else {
+  if (str_detect(id, "rf")) {current_params <- rf_params} else {
     current_params <- xgb_params}
-  bayes_results[[id]] <<- tune_bayes(
-    current_workflow,
-    resamples = uni_folds,
-    iter = 5,
-    param_info = current_params,
-    metrics = current_metrics,
-    control = control_bayes(
-      no_improve = 10,
-      save_pred = TRUE,
-      verbose = TRUE))})
+  bayes_results[[id]] <<- tune_bayes(current_workflow,resamples = uni_folds,
+    iter = 5,param_info = current_params,metrics = current_metrics,
+    control = control_bayes(no_improve = 10,save_pred = TRUE,verbose = TRUE))})
 stopCluster(cl)
 toc()
 final_fits = list()
@@ -330,17 +291,14 @@ best_params = list()
 for (mod_name in names(bayes_results)){
   current_best_params <- select_best(bayes_results[[mod_name]], metric = "roc_auc")
   best_params[[mod_name]] = current_best_params
-  final_workflow <- workflows |>
-    extract_workflow(id = mod_name) |>
+  final_workflow <- workflows |> extract_workflow(id = mod_name) |>
     finalize_workflow(current_best_params)
-  final_fits[[mod_name]] <- final_workflow |>
-    fit(data = uni_train)}
+  final_fits[[mod_name]] <- final_workflow |> fit(data = uni_train)}
 ```
 
 ```{r, fig.height=2}
 final_results <- map_dfr(
-  final_fits, 
-  .f = function(model_fit) {
+  final_fits, .f = function(model_fit) {
     test_predictions <- predict(model_fit, new_data = uni_test, type = "prob") |>
      bind_cols(uni_test |> select(public_private))
     class_predictions <- predict(model_fit, new_data = uni_test, type = "class")
@@ -356,14 +314,24 @@ final_results <- final_results |>
   separate_wider_delim(model_name, "_", names = c("recipe", "model"))
 kable(final_results)
 ggplot(final_results) +
-  geom_col(aes(x=model, y=accuracy, fill=model)) +
-  facet_wrap(~recipe)
+  geom_col(aes(x=model, y=accuracy, fill=model)) + facet_wrap(~recipe)
 ```
 
-This more advanced model relates to the second goal of the study, attempting to predict whether a school is public or private. Since it is a classification model, it cannot be compared to a linear one. Instead, it is compared to a random forest model that can manage the same metric. Two sets of features were modelled: all available in the dataset and all but costs. The intention behind this was to see if schools could still be accurately classified when ignoring the most glaring difference in tuition price. Although some accuracy was lost, about 90% were still classified correctly without costs.
+This more advanced model relates to the second goal of the study, attempting to predict whether a school is public or private.
+Since it is a classification model, it cannot be compared to a linear one.
+Instead, it is compared to a random forest model that can manage the same metric.
+Two sets of features were modelled: all available in the dataset and all but costs.
+The intention behind this was to see if schools could still be accurately classified when ignoring the most glaring difference in tuition price.
+Although some accuracy was lost, about 90% were still classified correctly without costs.
+
 ### Conclusions and Limitations
-The analysis provides strong evidence that a college's financial and academic resources are quantifiable differentiators of graduation outcomes. Models utilizing both instructional expenditure per student and the student-faculty ratio were successful, indicating that investment in student support and faculty accessibility plays a key role. Ultimately, the best predictive models move beyond basic tuition and institution type to capture the differences in resource allocation that directly affect student success.
 
-While the exploratory linear and advanced models identified key predictors that differentiate graduation rates for colleges, the analysis faces significant limitations due to the age of the data. All institutional and admissions data are from a period shortly before the year 2000, which means the findings may not accurately reflect the current landscape of U.S. higher education.
+The analysis provides strong evidence that a college's financial and academic resources are quantifiable differentiators of graduation outcomes.
+Models utilizing both instructional expenditure per student and the student-faculty ratio were successful, indicating that investment in student support and faculty accessibility plays a key role.
+Ultimately, the best predictive models move beyond basic tuition and institution type to capture the differences in resource allocation that directly affect student success.
 
-Furthermore, the linear models are limited in their ability to capture non-linear relationships or complex interactions among features like test scores and enrollment demographics. While the advanced models (XGBoost/Random Forest) mitigate this by modeling non-linearity, they operate as "black boxes," which makes drawing intuitive conclusions about the specific mechanisms driving graduation rates more challenging compared to interpreting the coefficients of a linear regression.
+While the exploratory linear and advanced models identified key predictors that differentiate graduation rates for colleges, the analysis faces significant limitations due to the age of the data.
+All institutional and admissions data are from a period shortly before the year 2000, which means the findings may not accurately reflect the current landscape of U.S. higher education.
+
+Furthermore, the linear models are limited in their ability to capture non-linear relationships or complex interactions among features like test scores and enrollment demographics.
+While the advanced models (XGBoost/Random Forest) mitigate this by modeling non-linearity, they operate as "black boxes," which makes drawing intuitive conclusions about the specific mechanisms driving graduation rates more challenging compared to interpreting the coefficients of a linear regression.
